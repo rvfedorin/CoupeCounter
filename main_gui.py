@@ -65,7 +65,7 @@ class SystemDoors(tkinter.Frame):
         self.system_doors_img = self.all_system_doors[0]  # take one from all as default
         self.system_doors_name = self.all_system_doors[0][:-3]  # take name system as default ([:-3] - extension cut)
         self.make_widget()
-        self.pack(side='top')
+        self.pack(side='top', fill='x')
 
     def make_widget(self):
         self.image = Image.open(os.path.join(settings.system_doors_path_img, self.system_doors_img))
@@ -81,16 +81,112 @@ class SystemDoors(tkinter.Frame):
         self.make_widget()
 
 
+class ParametersDoorOpening(tkinter.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pack(fill='x')
+        self.label = tkinter.Label(self, text="1. Введите параметры проёма и дверей-купе: ", bg='#1ad924', width=50)
+        self.label.pack()
+        self.row_frame = []
+        self.fields = [
+            'Высота проёма:',
+            'Ширина проёма:',
+            'Количество дверей:',
+            'Количество мест перекрытия:',
+            'Буферная лента ("шлегель"):'
+        ]
+        self.amount_doors = tkinter.StringVar()
+        self.amount_doors.set(1)  # default value
+        self.amount_opening = tkinter.StringVar()
+        self.amount_opening.set(1)  # default value
+        self.need_tape = tkinter.IntVar()
+
+        #  'Высота проёма:'
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        self.height = tkinter.Entry(row)
+        self.height.insert(0, '2500')
+        mes = tkinter.Message(row, text=self.fields[0], width=100)
+        mes.pack(side='left')
+        self.height.pack(side="right", pady=2)
+        self.row_frame.append(row)
+
+        #  'Ширина проёма:'
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        self.width = tkinter.Entry(row)
+        self.width.insert(0, '1500')
+        mes = tkinter.Message(row, text=self.fields[1], width=100)
+        mes.pack(side='left')
+        self.width.pack(side="right", pady=2)
+        self.row_frame.append(row)
+
+        #  'Количество дверей:'
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        list_num = [1, 2, 3, 4, 5, 6, 7, 8]
+        option = tkinter.OptionMenu(row, self.amount_doors, *list_num)
+        mes = tkinter.Message(row, text=self.fields[2], width=100)
+        mes.pack(side='left')
+        option.pack(side='right')
+        self.row_frame.append(row)
+
+        #  'Количество мест перекрытия:'
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        list_num = [1, 2, 3, 4, 5, 6, 7]
+        option = tkinter.OptionMenu(row, self.amount_opening, *list_num)
+        mes = tkinter.Message(row, text=self.fields[3], width=100)
+        mes.pack(side='left')
+        option.pack(side='right')
+        self.row_frame.append(row)
+
+        #  'Буферная лента ("шлегель"):'
+        row = tkinter.Frame(self)
+        row.pack(side='top', fill='x')
+        check1 = tkinter.Checkbutton(row, variable=self.need_tape, onvalue=1, offvalue=0)
+        mes = tkinter.Message(row, text=self.fields[4], width=100)
+        self.image = Image.open(f'{settings.data}/quest.png')
+        self.image = self.image.resize((15, 15), Image.ANTIALIAS)
+        self.photo = ImageTk.PhotoImage(self.image)
+        button_quest = tkinter.Button(
+            row,
+            relief='groove',
+            image=self.photo,
+            command=lambda _name='quest_tape': print(_name))
+
+        mes.pack(side='left')
+        button_quest.pack(side='left')
+        check1.pack(side="right", pady=2)
+
+        self.row_frame.append(row)
+
+
+class DoorHandle(tkinter.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+
+
+class MainFrame(tkinter.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pack(fill='x')
+        self.sys_door = SystemDoors(self)
+        self.param_door = ParametersDoorOpening(self)
+        self.door_handle = DoorHandle(self)
+
+
 if __name__ == '__main__':
-    import sys
+    # import sys
 
     root = tkinter.Tk()
     root.title('Расчет дверей купе.')
     # root.iconbitmap('data/firm.ico')
-    root.minsize(width=300, height=265)
+    root.minsize(width=250, height=265)
     root.resizable(width=False, height=False)
 
     #  START Layout
-    SystemDoors()
+    MainFrame(root)
     # END Layout
     root.mainloop()
