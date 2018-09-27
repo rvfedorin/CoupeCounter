@@ -72,8 +72,10 @@ class SystemDoors(tkinter.Frame):
         self.photo = ImageTk.PhotoImage(self.image)
         self.label = tkinter.Label(self, image=self.photo)
         self.label.pack()
-        self.button_chage = tkinter.Button(self, text="Выбрать систему", command=lambda: SystemDoorsChange(self))
-        self.button_chage.pack()
+        self.button_chage = tkinter.Button(self,
+                                           text="Выбрать систему",
+                                           command=lambda: SystemDoorsChange(self))
+        self.button_chage.pack(pady=4)
 
     def refresh(self):
         self.label.destroy()
@@ -165,7 +167,6 @@ class ParametersDoorOpening(tkinter.Frame):
 class DoorHandle(tkinter.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
 
 
 class MainFrame(tkinter.Frame):
