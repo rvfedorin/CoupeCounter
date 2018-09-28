@@ -128,7 +128,7 @@ class ParametersDoorOpening(tkinter.Frame):
         row.pack(side='top', fill='x')
         list_num = [1, 2, 3, 4, 5, 6, 7, 8]
         option = tkinter.OptionMenu(row, self.amount_doors, *list_num)
-        mes = tkinter.Message(row, text=self.fields[2], width=100)
+        mes = tkinter.Message(row, text=self.fields[2], width=150)
         mes.pack(side='left')
         option.pack(side='right')
         self.row_frame.append(row)
@@ -138,7 +138,7 @@ class ParametersDoorOpening(tkinter.Frame):
         row.pack(side='top', fill='x')
         list_num = [1, 2, 3, 4, 5, 6, 7]
         option = tkinter.OptionMenu(row, self.amount_opening, *list_num)
-        mes = tkinter.Message(row, text=self.fields[3], width=100)
+        mes = tkinter.Message(row, text=self.fields[3], width=200)
         mes.pack(side='left')
         option.pack(side='right')
         self.row_frame.append(row)
@@ -147,7 +147,7 @@ class ParametersDoorOpening(tkinter.Frame):
         row = tkinter.Frame(self)
         row.pack(side='top', fill='x')
         check1 = tkinter.Checkbutton(row, variable=self.need_tape, onvalue=1, offvalue=0)
-        mes = tkinter.Message(row, text=self.fields[4], width=100)
+        mes = tkinter.Message(row, text=self.fields[4], width=200)
         self.image = Image.open(f'{settings.data}/quest.png')
         self.image = self.image.resize((15, 15), Image.ANTIALIAS)
         self.photo = ImageTk.PhotoImage(self.image)
