@@ -9,11 +9,19 @@ from PIL import Image, ImageTk
 import settings
 
 
+class MyOptionMenu(tkinter.OptionMenu):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image = Image.open(os.path.join(settings.data, 'one_down.png'))
+        self.photo = ImageTk.PhotoImage(self.image)
+        self.config(indicatoron=0, compound='right', image=self.photo)
+
+
 class SystemDoorsChange(tkinter.Toplevel):
-    def __init__(self, sys_doors_inst, *args, **kwargs):
+    def __init__(self, main_frame, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title('Выбор системы.')
-        self.sys_doors_inst = sys_doors_inst
+        self.main_frame = main_frame
         self._buttons = []
         self.btn_frames = []
         self.photos = []
@@ -23,7 +31,7 @@ class SystemDoorsChange(tkinter.Toplevel):
         _line = 4
         btn_frame = tkinter.Frame(self, bg='green')
         btn_frame.pack()
-        for system_door in self.sys_doors_inst.all_system_doors:
+        for system_door in self.main_frame.sys_door.all_system_doors:
             if _line == 0:
                 btn_frame = tkinter.Frame(self, bg='green')
                 btn_frame.pack()
@@ -43,8 +51,13 @@ class SystemDoorsChange(tkinter.Toplevel):
             self._buttons.append(_b)
 
     def change(self, new_system_doors):
-        self.sys_doors_inst.system_doors_img = new_system_doors
-        self.sys_doors_inst.refresh()
+        self.main_frame.sys_door.system_doors_img = new_system_doors
+        self.main_frame.sys_door.refresh()
+        self.main_frame.door_handle.destroy()
+        self.main_frame.door_handle = DoorHandle(self.main_frame, self.main_frame)  # как фрейм и как объект
+        self.main_frame.button_change.forget()
+        self.main_frame.button_change.pack(pady=4)
+
         self.destroy()
 
 
@@ -63,11 +76,12 @@ class SystemDoors(tkinter.Frame):
             print('error open ')
 
         self.system_doors_img = self.all_system_doors[0]  # take one from all as default
-        self.system_doors_name = self.all_system_doors[0][:-3]  # take name system as default ([:-3] - extension cut)
+        self.system_doors_name = self.system_doors_img[:-3]  # take name system as default ([:-3] - extension cut)
         self.make_widget()
         self.pack(side='top', fill='x')
 
     def make_widget(self):
+        self.system_doors_name = self.system_doors_img[:-3]
         self.image = Image.open(os.path.join(settings.system_doors_path_img, self.system_doors_img))
         self.photo = ImageTk.PhotoImage(self.image)
         self.label = tkinter.Label(self, image=self.photo)
@@ -82,7 +96,10 @@ class ParametersDoorOpening(tkinter.Frame):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.pack(fill='x')
-                self.label = tkinter.Label(self, text="1. Введите параметры проёма и дверей-купе: ", bg='#1ad924', width=50)
+                self.label = tkinter.Label(self,
+                                           text="1. Введите параметры проёма и дверей-купе: ",
+                                           bg='#1ad924',
+                                           width=50)
                 self.label.pack()
                 self.row_frame = []
                 self.fields = [
@@ -122,7 +139,7 @@ class ParametersDoorOpening(tkinter.Frame):
                 row = tkinter.Frame(self, relief='ridge', bd=1)
                 row.pack(side='top', fill='x')
                 list_num = [1, 2, 3, 4, 5, 6, 7, 8]
-                option = tkinter.OptionMenu(row, self.amount_doors, *list_num)
+                option = MyOptionMenu(row, self.amount_doors, *list_num)
                 mes = tkinter.Message(row, text=self.fields[2], width=150)
                 mes.pack(side='left')
                 option.pack(side='right')
@@ -132,7 +149,7 @@ class ParametersDoorOpening(tkinter.Frame):
                 row = tkinter.Frame(self, relief='ridge', bd=1)
                 row.pack(side='top', fill='x')
                 list_num = [1, 2, 3, 4, 5, 6, 7]
-                option = tkinter.OptionMenu(row, self.amount_opening, *list_num)
+                option = MyOptionMenu(row, self.amount_opening, *list_num)
                 mes = tkinter.Message(row, text=self.fields[3], width=200)
                 mes.pack(side='left')
                 option.pack(side='right')
@@ -160,27 +177,66 @@ class ParametersDoorOpening(tkinter.Frame):
 
 
 class DoorHandle(tkinter.Frame):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, system_instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.pack()
+        self.main_instance = system_instance
+
+        #  open files with images handle
+        try:
+            self.files_img = [
+                f for f in os.listdir(f'{settings.handles}/{self.main_instance.sys_door.system_doors_name}') if f.endswith('.png')]
+        except:
+            print('not found handle')
+
+        #  open file with colors
+        try:
+            with open(f'{settings.handles}/{self.main_instance.sys_door.system_doors_name}/colors.txt', 'rb') as file:
+                self.colors = [col.decode()[:-1] for col in file]
+        except:
+            print('not found colors')
+
         self.pack(fill='x')
         self.label = tkinter.Label(self, text="2. Выберите профиль вертикальной ручки: ", bg='#1ad924', width=50)
         self.label.pack()
         self.row_frame = []
         self.fields = [
-            'Профиль Absolut: ',
-            'Цвет профиля Absolut: ',
+            f'Профиль {self.main_instance.sys_door.system_doors_name}: ',
+            f'Цвет профиля {self.main_instance.sys_door.system_doors_name}: ',
         ]
         self.type_handle = tkinter.StringVar()
-        self.type_handle.set(1)  # default value
+        self.type_handle.set(self.files_img[0][:-4])  # default value
         self.color_handle = tkinter.StringVar()
-        self.color_handle.set(1)  # default value
+        self.color_handle.set(self.colors[0])  # default value
         self.need_tape = tkinter.IntVar()
+        self.make_widget()
+
+    def make_widget(self):
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        #  Изабражение профиля
+        self.image = Image.open(
+            os.path.join(
+                f'{settings.handles}/{self.main_instance.sys_door.system_doors_name}', f'{self.type_handle.get()}.png'))
+        self.image = self.image.resize((120, 60), Image.ANTIALIAS)
+        self.prof_img = ImageTk.PhotoImage(self.image, row)
+        self.label = tkinter.Label(row, image=self.prof_img)
+        self.label.pack()
+        self.row_frame.append(row)
 
         #  Профиль
         row = tkinter.Frame(self, relief='ridge', bd=1)
         row.pack(side='top', fill='x')
-        list_num = [1, 2, 3, 4, 5, 6, 7, 8]
-        option = tkinter.OptionMenu(row, self.type_handle, *list_num)
+        types_prof = []
+        for f_name in self.files_img:
+            types_prof.append(f_name[:-4])
+
+        option = MyOptionMenu(
+            row,
+            self.type_handle,
+            *types_prof,
+            command=lambda new_img=self.type_handle.get(): self.change_img_prof(new_img))
+
         mes = tkinter.Message(row, text=self.fields[0], width=150)
         mes.pack(side='left')
         option.pack(side='right')
@@ -189,14 +245,19 @@ class DoorHandle(tkinter.Frame):
         #  Цвет профиля
         row = tkinter.Frame(self, relief='ridge', bd=1)
         row.pack(side='top', fill='x')
-        list_num = [1, 2, 3, 4, 5, 6, 7]
-        option = tkinter.OptionMenu(row, self.color_handle, *list_num)
+        option = MyOptionMenu(row, self.color_handle, *self.colors)
         mes = tkinter.Message(row, text=self.fields[1], width=200)
         mes.pack(side='left')
         option.pack(side='right')
         self.row_frame.append(row)
 
         self.row_frame.append(row)
+
+    def change_img_prof(self, new_img):
+        self.type_handle.set(new_img)
+        for fr in self.row_frame:
+            fr.destroy()
+        self.make_widget()
 
 
 class MainFrame(tkinter.Frame):
@@ -205,11 +266,12 @@ class MainFrame(tkinter.Frame):
         self.pack(fill='x')
         self.sys_door = SystemDoors(self)
         self.param_door = ParametersDoorOpening(self)
-        self.door_handle = DoorHandle(self)
-        self.button_chage = tkinter.Button(self,
+        self.door_handle = DoorHandle(self, self)
+
+        self.button_change = tkinter.Button(self,
                                            text="Выбрать систему",
-                                           command=lambda: SystemDoorsChange(self.sys_door))
-        self.button_chage.pack(pady=4)
+                                           command=lambda: SystemDoorsChange(self))
+        self.button_change.pack(pady=4)
 
 
 if __name__ == '__main__':
