@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 
 #  my modules ======================
 import settings
+import tools
 
 
 class MyOptionMenu(tkinter.OptionMenu):
@@ -151,7 +152,9 @@ class ParametersDoorOpening(tkinter.Frame):
                 list_num = [1, 2, 3, 4, 5, 6, 7]
                 option = MyOptionMenu(row, self.amount_opening, *list_num)
                 mes = tkinter.Message(row, text=self.fields[3], width=200)
+                self.opening_quest = tools.AddQuest(row, print)
                 mes.pack(side='left')
+                self.opening_quest.button.pack(side='left')
                 option.pack(side='right')
                 self.row_frame.append(row)
 
@@ -160,17 +163,9 @@ class ParametersDoorOpening(tkinter.Frame):
                 row.pack(side='top', fill='x')
                 check1 = tkinter.Checkbutton(row, variable=self.need_tape, onvalue=1, offvalue=0)
                 mes = tkinter.Message(row, text=self.fields[4], width=200)
-                self.image = Image.open(f'{settings.data}/quest.png')
-                self.image = self.image.resize((15, 15), Image.ANTIALIAS)
-                self.photo = ImageTk.PhotoImage(self.image)
-                button_quest = tkinter.Button(
-                    row,
-                    relief='groove',
-                    image=self.photo,
-                    command=lambda _name='quest_tape': print(_name))
-
+                self.tape_quest = tools.AddQuest(row, print)
                 mes.pack(side='left')
-                button_quest.pack(side='left')
+                self.tape_quest.button.pack(side='left')
                 check1.pack(side="right", pady=2)
 
                 self.row_frame.append(row)
@@ -181,11 +176,13 @@ class DoorHandle(tkinter.Frame):
         super().__init__(*args, **kwargs)
         self.pack()
         self.main_instance = system_instance
+        self.files_img = []
 
         #  open files with images handle
         try:
-            self.files_img = [
-                f for f in os.listdir(f'{settings.handles}/{self.main_instance.sys_door.system_doors_name}') if f.endswith('.png')]
+            for file in os.listdir(f'{settings.handles}/{self.main_instance.sys_door.system_doors_name}'):
+                if file.endswith('.png'):
+                    self.files_img.append(file)
         except:
             print('not found handle')
 
@@ -258,6 +255,11 @@ class DoorHandle(tkinter.Frame):
         for fr in self.row_frame:
             fr.destroy()
         self.make_widget()
+
+
+class InterSectionProf(tkinter.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class MainFrame(tkinter.Frame):
