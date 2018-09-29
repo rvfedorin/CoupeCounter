@@ -1,7 +1,17 @@
 import tkinter
 from PIL import Image, ImageTk
+import os
 
+# my models
 import settings
+
+
+class MyOptionMenu(tkinter.OptionMenu):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image = Image.open(os.path.join(settings.data, 'one_down.png'))
+        self.photo = ImageTk.PhotoImage(self.image)
+        self.config(indicatoron=0, compound='right', image=self.photo)
 
 
 class AddQuest:
@@ -13,6 +23,6 @@ class AddQuest:
             frame,
             relief='groove',
             image=self.photo,
-            command=lambda _name='quest_tape': command(_name))
+            command=command)
 
 
