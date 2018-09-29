@@ -4,6 +4,7 @@ import os
 
 # my models
 from form_view_classes import *
+import tools
 
 
 class FormsChange(tkinter.Toplevel):
@@ -66,15 +67,17 @@ class FormAndMaterial(tkinter.Frame):
             'FormNoSection.png': FormNoSection,
             'FormTwoSection.png': FormTwoSection,
         }
+        self.var_bolt = {'С болтом': 'with_bolt.png', 'Без болта': 'notbolt.png'}
+        self.type_bolt = tkinter.StringVar()
+        self.type_bolt.set('С болтом')  # default value
+        self.bolt_frames = []
 
         self.make_widget()
 
     def make_widget(self):
         if self.section:
-            self.label = tkinter.Label(self,
-                                       text=f"3. Выберите профиль вертикальной ручки: ",
-                                       bg='#1ad924', width=50)
-            self.label.pack()
+            self.create_bolt_section()
+
         self.num = 4 if self.section else 3
 
         self.label_mat = tkinter.Label(self,
@@ -87,9 +90,39 @@ class FormAndMaterial(tkinter.Frame):
         self.text = self.canvas.create_text(100, 10, text=f"{self.form}")
         self.canvas.pack()
 
+    def create_bolt_section(self):
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        self.bolt_frames.append(row)
+        self.label = tkinter.Label(row,
+                                   text=f"3. Выберите профиль вертикальной ручки: ",
+                                   bg='#1ad924', width=50)
+        self.label.pack()
+
+        self.option = tools.MyOptionMenu(
+            row,
+            self.type_bolt,
+            *self.var_bolt,
+            command=lambda new_img=self.type_bolt.get(): self.change_img_bolt(new_img))
+
+        self.option.pack(side='right')
+        self.mes = tkinter.Message(row, text='Межсекционный профиль: ', width=250)
+        self.mes.pack(side='left')
+
+        row = tkinter.Frame(self, relief='ridge', bd=1)
+        row.pack(side='top', fill='x')
+        self.image = Image.open(
+            os.path.join(settings.bolt, f'{self.var_bolt[self.type_bolt.get()]}'))
+        self.image = self.image.resize((120, 60), Image.ANTIALIAS)
+        self.bolt_img = ImageTk.PhotoImage(self.image, row)
+        self.bolt = tkinter.Label(row, image=self.bolt_img)
+        self.bolt.pack(side='bottom')
+        self.bolt_frames.append(row)
+
     def refresh(self, new_form):
         if self.form != 'FormNoSection.png':
-            self.label.destroy()
+            for fr in self.bolt_frames:
+                fr.destroy()
         if new_form != 'FormNoSection.png':
             self.section = True
         else:
@@ -99,4 +132,17 @@ class FormAndMaterial(tkinter.Frame):
         self.label_mat.destroy()
         self.form = new_form
         self.make_widget()
+
+    def change_img_bolt(self, new_img):
+        self.type_bolt.set(new_img)
+        for fr in self.bolt_frames:
+            fr.destroy()
+        self.create_bolt_section()
+
+        self.canvas.forget()
+        self.label_mat.forget()
+        self.label_mat.pack()
+        self.canvas.pack()
+
+
 

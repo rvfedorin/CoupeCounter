@@ -34,6 +34,7 @@ if __name__ == '__main__':
 
     root = tkinter.Tk()
     root.title('Расчет дверей купе.')
+    root.geometry('+10+10')
     # root.iconbitmap('data/firm.ico')
     root.minsize(width=250, height=265)
     root.resizable(width=False, height=False)
