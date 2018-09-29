@@ -5,4 +5,4 @@ data = 'data'
 bolt = 'system_doors/bolt'
 help_img = 'system_doors/help/img'
 mater_img = 'system_doors/img_material'
-
+form_img = 'system_doors/configuration'

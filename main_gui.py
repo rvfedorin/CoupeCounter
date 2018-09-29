@@ -6,7 +6,7 @@ import tkinter
 from systems_tools import SystemDoors, SystemDoorsChange
 from parametrs_tools import ParametersDoorOpening
 from handle_tools import DoorHandle
-from form_material import FormAndMaterial
+from form_material import FormAndMaterial, FormsChange
 
 
 class MainFrame(tkinter.Frame):
@@ -18,10 +18,15 @@ class MainFrame(tkinter.Frame):
         self.door_handle = DoorHandle(self, self)
         self.form_material = FormAndMaterial(self, self)
 
-        self.button_change = tkinter.Button(self,
-                                            text="Выбрать систему",
-                                            command=lambda: SystemDoorsChange(self))
-        self.button_change.pack(pady=4)
+        self.button_change_system = tkinter.Button(self,
+                                                   text="Выбрать систему",
+                                                   command=lambda: SystemDoorsChange(self))
+        self.button_change_form = tkinter.Button(self,
+                                            text="Выбрать конфигурацию дверей.",
+                                            command=lambda: FormsChange(self))
+
+        self.button_change_system.pack(side='left', pady=4)
+        self.button_change_form.pack(side='right', pady=4)
 
 
 if __name__ == '__main__':
