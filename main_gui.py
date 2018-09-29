@@ -6,6 +6,7 @@ import tkinter
 from systems_tools import SystemDoors, SystemDoorsChange
 from parametrs_tools import ParametersDoorOpening
 from handle_tools import DoorHandle
+from form_material import FormAndMaterial
 
 
 class MainFrame(tkinter.Frame):
@@ -15,6 +16,7 @@ class MainFrame(tkinter.Frame):
         self.sys_door = SystemDoors(self)
         self.param_door = ParametersDoorOpening(self)
         self.door_handle = DoorHandle(self, self)
+        self.form_material = FormAndMaterial(self, self)
 
         self.button_change = tkinter.Button(self,
                                             text="Выбрать систему",
