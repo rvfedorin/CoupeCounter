@@ -6,7 +6,7 @@ import tools
 
 
 class ParametersDoorOpening(tkinter.Frame):
-            def __init__(self, *args, **kwargs):
+            def __init__(self, main_frame, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.pack(fill='x')
                 self.label = tkinter.Label(self,
@@ -52,7 +52,7 @@ class ParametersDoorOpening(tkinter.Frame):
                 row = tkinter.Frame(self, relief='ridge', bd=1)
                 row.pack(side='top', fill='x')
                 list_num = [1, 2, 3, 4, 5, 6, 7, 8]
-                option = tools.MyOptionMenu(row, self.amount_doors, *list_num)
+                option = tools.MyOptionMenu(row, self.amount_doors, *list_num, command=main_frame.change_form)
                 mes = tkinter.Message(row, text=self.fields[2], width=150)
                 mes.pack(side='left')
                 option.pack(side='right')
