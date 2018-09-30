@@ -40,12 +40,23 @@ class SystemDoorsChange(tkinter.Toplevel):
             self._buttons.append(_b)
 
     def change(self, new_system_doors):
+        #  Перерисовываем и менякм систему
         self.main_frame.sys_door.system_doors_img = new_system_doors
         self.main_frame.sys_door.refresh()
+
+        #  Перерисовываем блок профиля вертикальной ручки
         self.main_frame.door_handle.destroy()
         self.main_frame.door_handle = DoorHandle(self.main_frame, self.main_frame)  # как фрейм и как объект
-        self.main_frame.button_change.forget()
-        self.main_frame.button_change.pack(pady=4)
+
+        #  Перересовывакм блок профиля вертикальной ручки
+        self.main_frame.form_material.forget()
+        self.main_frame.form_material.pack()
+
+        #  Перерисовываем кнопки
+        self.main_frame.button_change_system.forget()
+        self.main_frame.button_change_form.forget()
+        self.main_frame.button_change_system.pack(side='left', pady=4, padx=4)
+        self.main_frame.button_change_form.pack(side='right', pady=4, padx=4)
 
         self.destroy()
 

@@ -27,27 +27,34 @@ class FormNoSection:
         self.part_left = self.canvas.create_rectangle(56, 26, 117, 234)
         self.part_right = self.canvas.create_rectangle(123, 26, 184, 234)
 
-        self.mat_dict = {'left': self.mirror, 'right': self.ldsp}
-
-        self.part_left_mat = self.canvas.create_image(86.5, 130, image=self.mat_dict['left'])
-        self.part_right_mat = self.canvas.create_image(153.5, 130, image=self.mat_dict['right'])
+        self.mat_dict = {'left': (self.mirror, 'Зеркало'), 'right': (self.ldsp, 'ЛДСП')}
 
         self.parts = {
-            'left': self.part_left_mat,
-            'right': self.part_right_mat
+            'left': (self.canvas.create_image(86.5, 130, image=self.mat_dict['left'][0]),
+                     self.canvas.create_text(86.5, 130, text=self.mat_dict['left'][1])),
+
+            'right': (self.canvas.create_image(153.5, 130, image=self.mat_dict['right'][0]),
+                      self.canvas.create_text(153.5, 130, text=self.mat_dict['right'][1]))
         }
 
-        self.canvas.tag_bind(self.part_left_mat, '<Button-1>', lambda event: self.change_material(event, 'left'))
-        self.canvas.tag_bind(self.part_right_mat, '<Button-1>', lambda event: self.change_material(event, 'right'))
+        for part, mat_txt in self.parts.items():
+            self.canvas.tag_bind(mat_txt[0], '<Button-1>',
+                                 lambda event, part=part: self.change_material(event, part))
+            self.canvas.tag_bind(mat_txt[1], '<Button-1>',
+                                 lambda event, part=part: self.change_material(event, part))
 
     def change_material(self, event, change_side):
 
         for i in self.parts.keys():
             if i == change_side:
-                new_mat = self.mirror if self.mat_dict[change_side] == self.ldsp else self.ldsp
+                if self.mat_dict[change_side][0] == self.ldsp:
+                    new_mat = (self.mirror, 'Зеркало')
+                else:
+                    new_mat = (self.ldsp, 'ЛДСП')
+
                 self.mat_dict[change_side] = new_mat
-                self.canvas.itemconfig(self.parts[i],
-                                       image=new_mat)
+                self.canvas.itemconfig(self.parts[i][0], image=new_mat[0])
+                self.canvas.itemconfig(self.parts[i][1], text=new_mat[1])
 
 
 class FormTwoSection:
@@ -75,38 +82,72 @@ class FormTwoSection:
         self.part_right_bottom = self.canvas.create_rectangle(123, 133, 184, 234)
 
         self.mat_dict = {
-            'left_top': self.mirror,
-            'right_top': self.ldsp,
-            'left_bottom': self.ldsp,
-            'right_bottom': self.mirror,
+            'left_top': (self.mirror, 'Зеркало'),
+            'right_top': (self.ldsp, 'ЛДСП'),
+            'left_bottom': (self.ldsp, 'ЛДСП'),
+            'right_bottom': (self.mirror, 'Зеркало'),
         }
-
-        self.part_left_top_mat = self.canvas.create_image(86.5, 77, image=self.mat_dict['left_top'])
-        self.part_right_top_mat = self.canvas.create_image(153.5, 77, image=self.mat_dict['right_top'])
-        self.part_left_bottom_mat = self.canvas.create_image(86.5, 184, image=self.mat_dict['left_bottom'])
-        self.part_right_bottom_mat = self.canvas.create_image(153.5, 184, image=self.mat_dict['right_bottom'])
 
         self.parts = {
-            'left_top': self.part_left_top_mat,
-            'right_top': self.part_right_top_mat,
-            'left_bottom': self.part_left_bottom_mat,
-            'right_bottom': self.part_right_bottom_mat,
+            'left_top': (self.canvas.create_image(86.5, 77, image=self.mat_dict['left_top'][0]),
+                         self.canvas.create_text(86.5, 77, text=self.mat_dict['left_top'][1])),
+
+            'right_top': (self.canvas.create_image(153.5, 77, image=self.mat_dict['right_top'][0]),
+                          self.canvas.create_text(153.5, 77, text=self.mat_dict['right_top'][1])),
+
+            'left_bottom': (self.canvas.create_image(86.5, 184, image=self.mat_dict['left_bottom'][0]),
+                            self.canvas.create_text(86.5, 184, text=self.mat_dict['left_bottom'][1])),
+
+            'right_bottom': (self.canvas.create_image(153.5, 184, image=self.mat_dict['right_bottom'][0]),
+                             self.canvas.create_text(153.5, 184, text=self.mat_dict['right_bottom'][1])),
         }
 
-        self.canvas.tag_bind(self.part_left_top_mat, '<Button-1>',
-                             lambda event: self.change_material(event, 'left_top'))
-        self.canvas.tag_bind(self.part_right_top_mat, '<Button-1>',
-                             lambda event: self.change_material(event, 'right_top'))
-        self.canvas.tag_bind(self.part_left_bottom_mat, '<Button-1>', 
-                             lambda event: self.change_material(event, 'left_bottom'))
-        self.canvas.tag_bind(self.part_right_bottom_mat, '<Button-1>',
-                             lambda event: self.change_material(event, 'right_bottom'))
+        for part, mat_txt in self.parts.items():
+            self.canvas.tag_bind(mat_txt[0], '<Button-1>',
+                                 lambda event, part=part: self.change_material(event, part))
+            self.canvas.tag_bind(mat_txt[1], '<Button-1>',
+                                 lambda event, part=part: self.change_material(event, part))
 
     def change_material(self, event, change_side):
-
         for i in self.parts.keys():
             if i == change_side:
-                new_mat = self.mirror if self.mat_dict[change_side] == self.ldsp else self.ldsp
+                if self.mat_dict[change_side][0] == self.ldsp:
+                    new_mat = (self.mirror, 'Зеркало')
+                else:
+                    new_mat = (self.ldsp, 'ЛДСП')
+
                 self.mat_dict[change_side] = new_mat
-                self.canvas.itemconfig(self.parts[i],
-                                       image=new_mat)
+                self.canvas.itemconfig(self.parts[i][0], image=new_mat[0])
+                self.canvas.itemconfig(self.parts[i][1], text=new_mat[1])
+
+
+class TreeSection:
+    pass
+
+
+class FormFourSection:
+    pass
+
+
+class OneBottomInsert:
+    pass
+
+
+class OneMiddleInsert:
+    pass
+
+
+class TreeInsert:
+    pass
+
+
+class TreeMiddleInsert:
+    pass
+
+
+class TwoInsert:
+    pass
+
+
+class TwoMiddleInsert:
+    pass

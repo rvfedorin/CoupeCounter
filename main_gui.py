@@ -23,10 +23,11 @@ class MainFrame(tkinter.Frame):
                                                    command=lambda: SystemDoorsChange(self))
         self.button_change_form = tkinter.Button(self,
                                             text="Выбрать конфигурацию дверей.",
-                                            command=lambda: FormsChange(self))
+                                            command=lambda: FormsChange(self),
+                                                 )
 
-        self.button_change_system.pack(side='left', pady=4)
-        self.button_change_form.pack(side='right', pady=4)
+        self.button_change_system.pack(side='left', pady=4, padx=4)
+        self.button_change_form.pack(side='right', pady=4, padx=4)
 
 
 if __name__ == '__main__':
