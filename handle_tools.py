@@ -30,7 +30,7 @@ class DoorHandle(tkinter.Frame):
             print('not found colors')
 
         self.pack(fill='x')
-        self.label = tkinter.Label(self, text="2. Выберите профиль вертикальной ручки: ", bg='#1ad924', width=50)
+        self.label = tkinter.Label(self, text="2. Выберите профиль вертикальной ручки: ", bg='#1ad924', width=70)
         self.label.pack()
         self.row_frame = []
         self.fields = [

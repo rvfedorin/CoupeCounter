@@ -12,7 +12,7 @@ class ParametersDoorOpening(tkinter.Frame):
                 self.label = tkinter.Label(self,
                                            text="1. Введите параметры проёма и дверей-купе: ",
                                            bg='#1ad924',
-                                           width=50)
+                                           width=70)
                 self.label.pack()
                 self.row_frame = []
                 self.fields = [

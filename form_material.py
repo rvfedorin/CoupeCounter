@@ -105,12 +105,12 @@ class FormAndMaterial(tkinter.Frame):
 
         self.label_mat = tkinter.Label(self,
                                    text=f"{4 if self.section else 3}. Выбрерите наполнение для дверей: ",
-                                   bg='#1ad924', width=50)
+                                   bg='#1ad924', width=70)
         self.label_mat.pack()
 
         self.form_class = self.form_list[self.form](self)
         self.canvas = self.form_class.canvas
-        self.text = self.canvas.create_text(100, 10, text=f"{self.form}")
+        # self.text = self.canvas.create_text(100, 10, text=f"{self.form}")
         self.canvas.pack()
 
     def create_bolt_section(self):
@@ -119,7 +119,7 @@ class FormAndMaterial(tkinter.Frame):
         self.bolt_frames.append(row)
         self.label = tkinter.Label(row,
                                    text=f"3. Выберите профиль вертикальной ручки: ",
-                                   bg='#1ad924', width=50)
+                                   bg='#1ad924', width=70)
         self.label.pack()
 
         self.option = tools.MyOptionMenu(
