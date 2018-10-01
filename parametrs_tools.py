@@ -23,7 +23,7 @@ class ParametersDoorOpening(tkinter.Frame):
                     'Буферная лента ("шлегель"):'
                 ]
                 self.amount_doors = tkinter.StringVar()
-                self.amount_doors.set(1)  # default value
+                self.amount_doors.set(2)  # default value
                 self.amount_opening = tkinter.StringVar()
                 self.amount_opening.set(1)  # default value
                 self.need_tape = tkinter.IntVar()

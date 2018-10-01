@@ -63,7 +63,7 @@ class FormSection(ChangeMixin):
         self.mirror = ImageTk.PhotoImage(self.img_mirror)
         self.canvas = tkinter.Canvas(self.frame, width=480, height=250)
 
-        x1 = 20 * (9 - self.num_doors)
+        x1 = 20 * (9 - self.num_doors) + self.padd * (8 - self.num_doors) * 2
         y1 = 26
         x2 = x1 + self.x_size
         y2 = y1 + self.y_size - self.padd

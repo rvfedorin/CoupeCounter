@@ -17,16 +17,16 @@ class FormsChange(tkinter.Toplevel):
         self.photos = []
         self.all_forms = None
         self.name_list = {
-            'FormNoSection.png': 'Без секций',
-            'FormTwoSection.png': 'Две секции',
-            'treesection.png': 'Три секции',
-            'FormFourSection.png': 'Четыре секции',
-            'onebottominsert.png': 'Одна вставка нижняя',
-            'onemiddleinsert.png': 'Одна вставкм средняя',
-            'treeinsert.png': 'Три вставки',
-            'treemiddleinsert.png': 'Три среднии вставки',
-            'twoinsert.png': 'Две вставки',
-            'twomiddleinsert.png': 'Две средние вставки',
+            '1FormNoSection.png': 'Без секций',
+            '2FormTwoSection.png': 'Две секции',
+            '3treesection.png': 'Три секции',
+            '4FormFourSection.png': 'Четыре секции',
+            '5twoinsert.png': 'Две вставки',
+            '6treeinsert.png': 'Три вставки',
+            '7onemiddleinsert.png': 'Одна вставкм средняя',
+            '8twomiddleinsert.png': 'Две средние вставки',
+            '9treemiddleinsert.png': 'Три среднии вставки',
+            '91onebottominsert.png': 'Одна вставка нижняя',
         }
         self.make_widget()
 
@@ -78,30 +78,30 @@ class FormAndMaterial(tkinter.Frame):
         self.label = None
         self.canvas = None
         self.section = None
-        self.form = 'FormNoSection.png'
         self.form_class = None
         self.form_list = None
         self.var_bolt = {'С болтом': 'with_bolt.png', 'Без болта': 'notbolt.png'}
         self.type_bolt = tkinter.StringVar()
         self.type_bolt.set('С болтом')  # default value
         self.bolt_frames = []
+        self.doors = int(self.main_frame.param_door.amount_doors.get())
+        self.form_list = {
+                    '1FormNoSection.png': (FormSection, 0),
+                    '2FormTwoSection.png': (FormSection, 2),
+                    '3treesection.png': (FormSection, 3),
+                    '4FormFourSection.png': (FormSection, 4),
+                    '5twoinsert.png': '',
+                    '6treeinsert.png': '',
+                    '7onemiddleinsert.png': '',
+                    '8twomiddleinsert.png': '',
+                    '9treemiddleinsert.png': '',
+                    '91onebottominsert.png': '',
+                    }
+        self.form = '1FormNoSection.png'
 
         self.make_widget()
 
     def make_widget(self):
-        self.form_list = {
-            'FormNoSection.png': FormSection(self, int(self.main_frame.param_door.amount_doors.get())),
-            'FormTwoSection.png': FormSection(self, int(self.main_frame.param_door.amount_doors.get()), sec=2),
-            'treesection.png': FormSection(self, int(self.main_frame.param_door.amount_doors.get()), sec=3),
-            'FormFourSection.png': FormSection(self, int(self.main_frame.param_door.amount_doors.get()), sec=4),
-            'onebottominsert.png': OneBottomInsert,
-            'onemiddleinsert.png': OneMiddleInsert,
-            'treeinsert.png': TreeInsert,
-            'treemiddleinsert.png': TreeMiddleInsert,
-            'twoinsert.png': TwoInsert,
-            'twomiddleinsert.png': TwoMiddleInsert,
-        }
-
         if self.section:
             self.create_bolt_section()
 
@@ -110,10 +110,10 @@ class FormAndMaterial(tkinter.Frame):
                                    bg='#1ad924', width=70)
         self.label_mat.pack()
 
-        self.form_class = self.form_list[self.form]  # Создаём форму
+        to_create = self.form_list[self.form]  # class [0] with parametrs [1]
+        self.form_class = to_create[0](self, self.doors, to_create[1])  # Создаём форму
 
         self.canvas = self.form_class.canvas
-        # self.text = self.canvas.create_text(100, 10, text=f"{self.form}")
         self.canvas.pack()
 
     def create_bolt_section(self):
@@ -147,14 +147,14 @@ class FormAndMaterial(tkinter.Frame):
 
     def refresh(self, new_form):
         if new_form:
-            if self.form != 'FormNoSection.png':
+            if self.form != '1FormNoSection.png':
                 for fr in self.bolt_frames:
                     fr.destroy()
-            if new_form != 'FormNoSection.png':
+            if new_form != '1FormNoSection.png':
                 self.section = True
             else:
                 self.section = None
-
+        self.doors = int(self.main_frame.param_door.amount_doors.get())
         self.canvas.destroy()
         self.label_mat.destroy()
         self.form = new_form
