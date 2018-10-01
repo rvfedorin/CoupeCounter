@@ -39,6 +39,22 @@ class MainFrame(tkinter.Frame):
         self.form_material.canvas = self.form_material.form_class.canvas
         self.form_material.canvas.pack()
 
+    def change_size_open(self, event):
+        form_list = self.form_material.form_list[self.form_material.form]  # '1FormNoSection.png': (FormSection, 0),
+        form = form_list[0]
+        sec = form_list[1]
+        doors = int(self.param_door.amount_doors.get())
+
+        if int(self.param_door.width_var.get()) > 5000 or int(self.param_door.width_var.get()) < 1500:
+            self.param_door.width_var.set('1500')
+        if int(self.param_door.height_var.get()) > 5000 or int(self.param_door.height_var.get()) < 1000:
+            self.param_door.height_var.set('2500')
+
+        self.form_material.canvas.destroy()
+        self.form_material.form_class = form(self.form_material, doors, sec)
+        self.form_material.canvas = self.form_material.form_class.canvas
+        self.form_material.canvas.pack()
+
 
 if __name__ == '__main__':
     # import sys

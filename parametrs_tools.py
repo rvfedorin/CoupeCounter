@@ -27,12 +27,18 @@ class ParametersDoorOpening(tkinter.Frame):
                 self.amount_opening = tkinter.StringVar()
                 self.amount_opening.set(1)  # default value
                 self.need_tape = tkinter.IntVar()
+                self.width_var = tkinter.StringVar()
+                self.width_var.set('1500')
+                self.height_var = tkinter.StringVar()
+                self.height_var.set('2500')
 
                 #  'Высота проёма:'
                 row = tkinter.Frame(self, relief='ridge', bd=1)
                 row.pack(side='top', fill='x')
-                self.height = tkinter.Entry(row)
-                self.height.insert(0, '2500')
+
+                self.height = tkinter.Entry(row, textvariable=self.height_var)
+                self.height.bind('<FocusOut>', main_frame.change_size_open)
+                self.height.bind('<Return>', main_frame.change_size_open)
                 mes = tkinter.Message(row, text=self.fields[0], width=100)
                 mes.pack(side='left')
                 self.height.pack(side="right", pady=2)
@@ -41,8 +47,9 @@ class ParametersDoorOpening(tkinter.Frame):
                 #  'Ширина проёма:'
                 row = tkinter.Frame(self, relief='ridge', bd=1)
                 row.pack(side='top', fill='x')
-                self.width = tkinter.Entry(row)
-                self.width.insert(0, '1500')
+                self.width = tkinter.Entry(row, textvariable=self.width_var)
+                self.width.bind('<FocusOut>', main_frame.change_size_open)
+                self.width.bind('<Return>', main_frame.change_size_open)
                 mes = tkinter.Message(row, text=self.fields[1], width=100)
                 mes.pack(side='left')
                 self.width.pack(side="right", pady=2)
