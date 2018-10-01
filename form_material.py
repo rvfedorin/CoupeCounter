@@ -86,16 +86,16 @@ class FormAndMaterial(tkinter.Frame):
         self.bolt_frames = []
         self.doors = int(self.main_frame.param_door.amount_doors.get())
         self.form_list = {
-                    '1FormNoSection.png': (FormSection, 0),
+                    '1FormNoSection.png': (FormSection, 1),
                     '2FormTwoSection.png': (FormSection, 2),
                     '3treesection.png': (FormSection, 3),
                     '4FormFourSection.png': (FormSection, 4),
-                    '5twoinsert.png': '',
-                    '6treeinsert.png': '',
+                    '5twoinsert.png': (WithInsert, 2),
+                    '6treeinsert.png': (WithInsert, 3),
                     '7onemiddleinsert.png': '',
                     '8twomiddleinsert.png': '',
                     '9treemiddleinsert.png': '',
-                    '91onebottominsert.png': '',
+                    '91onebottominsert.png': (WithInsert, 1),
                     }
         self.form = '1FormNoSection.png'
 
