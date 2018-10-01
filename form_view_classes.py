@@ -141,7 +141,6 @@ class WithInsert(ChangeMixin):
             for ins in self.insertion_list:
                 sum_ins += ins[0].get() / self.delim + self.padd
 
-
             try:
                 self.img_ldsp = Image.open(os.path.join(settings.mater_img, 'wfon.jpg'))
                 self.img_mirror = Image.open(os.path.join(settings.mater_img, 'gfon.jpg'))
@@ -205,7 +204,7 @@ class WithInsert(ChangeMixin):
                         if first_door:  # если это первая дверь
                             _var = self.insertion_list[_index]
                             ent = tkinter.Entry(textvariable=_var[0])
-                            ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
+                            # ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
                             ent.bind('<Return>', lambda event, v=_var: self.change_size_insertion(event, v))
                             self.insertion_list[_index][1] = ent
                             self.canvas.create_window((x + self.door_width, y), width=50, window=ent)
@@ -236,7 +235,7 @@ class WithInsert(ChangeMixin):
                         if first_door:  # если это первая дверь
                             _var = self.insertion_list[_index]
                             ent = tkinter.Entry(textvariable=_var[0])
-                            ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
+                            # ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
                             ent.bind('<Return>', lambda event, v=_var: self.change_size_insertion(event, v))
                             self.insertion_list[_index][1] = ent
                             self.canvas.create_window((x + self.door_width, y), width=50, window=ent)
@@ -268,6 +267,11 @@ class WithInsert(ChangeMixin):
 
     def change_size_insertion(self, event, var):
         var[1].destroy()
+        sum_ins = 0
+        for ins in self.insertion_list:
+            sum_ins += ins[0].get() / self.delim + self.padd
+        if sum_ins*self.delim > self.opening_h or var[0].get() < 50:
+            var[0].set(300)
         self.insertion_img_list = []
         self.parts = {}
         self.canvas.destroy()
