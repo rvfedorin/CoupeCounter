@@ -13,7 +13,6 @@ class ChangeMixin:
         self.canvas = None
         self.ldsp = None
         self.mirror = None
-        self.mat_indicator = None
 
     def change_material(self, event, change_side):
         for i in self.parts.keys():
