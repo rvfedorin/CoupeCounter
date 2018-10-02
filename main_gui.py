@@ -1,12 +1,14 @@
 # ver 1.0.0
 # created by Roman Fedorin
 import tkinter
+import tkinter.messagebox as mbox
 
 #  my modules ======================
 from systems_tools import SystemDoors, SystemDoorsChange
 from parametrs_tools import ParametersDoorOpening
 from handle_tools import DoorHandle
 from form_material import FormAndMaterial, FormsChange
+from calculation import Calculation
 
 
 class MainFrame(tkinter.Frame):
@@ -26,8 +28,15 @@ class MainFrame(tkinter.Frame):
                                             command=lambda: FormsChange(self),
                                                  )
 
-        self.button_change_system.pack(side='left', pady=4, padx=4)
-        self.button_change_form.pack(side='right', pady=4, padx=4)
+        self.button_calculation = tkinter.Button(self,
+                                                 text="Расчёт.",
+                                                 bg='green',
+                                                 command=self.calculate,
+                                                 )
+
+        self.button_change_system.pack(side='left', pady=4, padx=10)
+        self.button_change_form.pack(side='left', pady=4, padx=4)
+        self.button_calculation.pack(side='right', pady=4, padx=4)
 
     def change_form(self, event):
         form_list = self.form_material.form_list[self.form_material.form]  # '1FormNoSection.png': (FormSection, 0),
@@ -55,6 +64,23 @@ class MainFrame(tkinter.Frame):
         self.form_material.form_class = form(self.form_material, doors, sec)
         self.form_material.canvas = self.form_material.form_class.canvas
         self.form_material.canvas.pack()
+
+    def calculate(self):
+        doors = int(self.param_door.amount_doors.get())
+        overlap = int(self.param_door.amount_opening .get())
+        text = res = ''
+
+        if doors - overlap > 1:
+            text = "Вы уверены, что мест перекрытий должно быть на столько меньше, чем дверей?"
+            res = mbox.askquestion("Warning", text)
+
+        elif overlap - doors > 0:
+            text = "Вы уверены, что мест перекрытий должно быть больше, чем дверей?",
+            res = mbox.askquestion("Warning", text)
+
+        if res == 'yes' or res =='':
+            Calculation(self)
+            print('Hello')
 
 
 if __name__ == '__main__':

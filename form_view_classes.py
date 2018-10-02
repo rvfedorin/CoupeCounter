@@ -7,13 +7,14 @@ import settings
 
 
 class ChangeMixin:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.parts = None
         self.mat_dict = None
         self.canvas = None
         self.ldsp = None
         self.mirror = None
         self.mat_indicator = None
+        self.insertion_list = None
 
     def change_material(self, event, change_side):
         for i in self.parts.keys():
@@ -44,8 +45,8 @@ class ChangeMixin:
 
 
 class FormSection(ChangeMixin):
-    def __init__(self, master_frame, num_doors=2, sec=1):
-        super().__init__()
+    def __init__(self, master_frame, num_doors=2, sec=1, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.num_doors = num_doors
         self.opening_h = int(master_frame.main_frame.param_door.height_var.get())
         self.opening_w = int(master_frame.main_frame.param_door.width_var.get())

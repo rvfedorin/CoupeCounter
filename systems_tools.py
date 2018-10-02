@@ -55,8 +55,11 @@ class SystemDoorsChange(tkinter.Toplevel):
         #  Перерисовываем кнопки
         self.main_frame.button_change_system.forget()
         self.main_frame.button_change_form.forget()
-        self.main_frame.button_change_system.pack(side='left', pady=4, padx=4)
+        self.main_frame.button_calculation.forget()
+        self.main_frame.button_change_system.pack(side='left', pady=4, padx=10)
         self.main_frame.button_change_form.pack(side='right', pady=4, padx=4)
+        self.main_frame.button_calculation.pack(side='right', pady=4, padx=4)
+
 
         self.destroy()
 
