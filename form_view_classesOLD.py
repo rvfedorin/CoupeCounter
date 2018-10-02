@@ -110,41 +110,26 @@ class FormSection(ChangeMixin):
 
 
 class WithInsert(ChangeMixin):
-    def __init__(self, master_frame, num_doors=2, insertion=2, insertion_list=None):
+    def __init__(self, master_frame, num_doors=2, insertion=2):
         super().__init__()
         self.frame = master_frame
         self.num_doors = num_doors
-        self.opening_h = int(self.frame.main_frame.param_door.height_var.get())  # высота проёма
-        self.opening_w = int(self.frame.main_frame.param_door.width_var.get())  # ширина проёма
-        self.delim = 14  # масштаб
+        self.opening_h = int(self.frame.main_frame.param_door.height_var.get())
+        self.opening_w = int(self.frame.main_frame.param_door.width_var.get())
+        self.delim = 14
         self.x_size = int(self.opening_w / (self.delim*2))
         self.y_size = int(self.opening_h / self.delim)
-        self.padd = 4  # отступ от частей двери
-        if insertion_list:
-            self.insertion_list = insertion_list[:]
-        else:
-            self.insertion_list = []  # содержит переменные с размером вставок.
+        self.padd = 4
+        self.insertion = insertion
+        self.insertion_list = []
         self.insertion_img_list = []
-        self.type = insertion
-        self.insertion_forms = {
-            1: [1, 0],  # секция (1) вставка (0) Одна вставка нижняя
-            2: [0, 1, 0],  # вставка секция вставка Две вставки
-            3: [0, 1, 0, 1, 0],  # вставка секция вставка Три вставки
-            21: [1, 0, 1],  # Одна средняя вставка
-            22: [1, 0, 1, 0, 1],  # Две средние вставки
-            23: [1, 0, 1, 0, 1, 0, 1],  # Три среднии вставка
-        }
-
-        self.insertion = self.insertion_forms[self.type].count(0)  # количество вставок
-        self.section = self.insertion_forms[self.type].count(1)  # количество секций
 
         _insertion = self.insertion
-        if len(self.insertion_list) == 0:
-            while _insertion:
-                insertion_size = [tkinter.IntVar(), 'None']
-                insertion_size[0].set(200)
-                self.insertion_list.append(insertion_size)
-                _insertion -= 1
+        while _insertion:
+            insertion_size = [tkinter.IntVar(), 'None']
+            insertion_size[0].set(500)
+            self.insertion_list.append(insertion_size)
+            _insertion -= 1
 
         self.mat_dict = {}
         self.parts = {}
@@ -159,25 +144,14 @@ class WithInsert(ChangeMixin):
             try:
                 self.img_ldsp = Image.open(os.path.join(settings.mater_img, 'wfon.jpg'))
                 self.img_mirror = Image.open(os.path.join(settings.mater_img, 'gfon.jpg'))
-
-                if self.type > 22:
-                    y_size = int((self.y_size - sum_ins) / self.section - self.padd)
-                elif self.type > 21:
-                    y_size = int((self.y_size - sum_ins) / self.section - self.padd)
-                elif self.type > 20:
-                    y_size = int((self.y_size - sum_ins) / self.section) - self.padd
-                elif self.type > 1:
-                    y_size = int((self.y_size - sum_ins) / (self.insertion - 1))
-                else:
-                    y_size = int((self.y_size - sum_ins)) - self.padd
-
-                self.img_ldsp = self.img_ldsp.resize((self.x_size-1, y_size-1), Image.ANTIALIAS)
-                self.img_mirror = self.img_mirror.resize((self.x_size-1, y_size-1), Image.ANTIALIAS)
+                y_size = int((self.y_size - sum_ins)/(self.insertion - 1))
+                self.img_ldsp = self.img_ldsp.resize((self.x_size-2, y_size - 2), Image.ANTIALIAS)
+                self.img_mirror = self.img_mirror.resize((self.x_size - 1, y_size - 1), Image.ANTIALIAS)
 
                 for ins in self.insertion_list:
                     self.insertion_img_list.append(
-                        [self.img_ldsp.resize((self.x_size-1, int((ins[0].get()/self.delim))-1), Image.ANTIALIAS),
-                         self.img_mirror.resize((self.x_size-1, int((ins[0].get() / self.delim))-1), Image.ANTIALIAS)
+                        [self.img_ldsp.resize((self.x_size-2, int((ins[0].get()/self.delim)) - 2), Image.ANTIALIAS),
+                         self.img_mirror.resize((self.x_size - 2, int((ins[0].get() / self.delim)) - 2), Image.ANTIALIAS)
                          ])
             except:
                 print('Image ldsp or mirror error')
@@ -193,50 +167,37 @@ class WithInsert(ChangeMixin):
             x2 = x1 + self.x_size
             y2 = y1 + self.y_size - self.padd
 
-            self.door_width = x1+(self.x_size+self.padd)*self.num_doors + self.padd/2
-
-            sum_ins = 0
-            for ins in self.insertion_list:
-                sum_ins += ins[0].get() / self.delim
-
-            if self.type > 20:
-                door_height = y1 + sum_ins + self.img_ldsp.size[1]*self.section + self.padd * len(
-                    self.insertion_forms[self.type]) + self.padd
-            else:
-                door_height = y1 + sum_ins + self.img_ldsp.size[1] * self.section + self.padd * len(
-                    self.insertion_forms[self.type])
-
+            self.door_width = x1+(self.x_size+self.padd)*self.num_doors
             self.door = self.canvas.create_rectangle(x1-self.padd,
                                                      y1-self.padd,
                                                      self.door_width,
-                                                     door_height)
+                                                     y1 + self.y_size + self.padd + self.padd*(self.insertion-2))
+
             door_count = self.num_doors
             num_part = 1
             first_door = True
             while door_count:  # все дверу нумеруем
                 insertion_count = self.insertion
-                for i, type_parts in enumerate(self.insertion_forms[self.type]):
-                    if type_parts == 0:  # если это вставка
+                while insertion_count:
+                    if insertion_count == 1:  # если это последняя вставка, то после неё секция не ставится
                         _index = insertion_count-1
                         _photo_ldsp = ImageTk.PhotoImage(self.insertion_img_list[_index][0])
                         _photo_mirror = ImageTk.PhotoImage(self.insertion_img_list[_index][1])
                         #  начало блока вставки
-                        _variable = self.insertion_list[_index][0].get()  # высота вставки
+                        _variable = self.insertion_list[_index][0].get()
                         y2 = y1 + int(_variable / self.delim)
                         self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем двери
 
                         # запоминаем материал каждой двери и противоположный
                         self.mat_dict[num_part] = (_photo_ldsp, 'ЛДСП', _photo_mirror, 'Зеркало')
 
-                        x = x1 + 0.5 + self.insertion_img_list[_index][0].size[0] / 2
-                        y = y1 + 0.5 + self.insertion_img_list[_index][0].size[1] / 2
+                        x = x1 + 1 + self.img_ldsp.size[0] / 2
+                        y = y1 + 1 + self.insertion_img_list[_index][0].size[1] / 2
                         self.parts[num_part] = (
                             self.canvas.create_image(x, y, image=_photo_ldsp),
                             self.canvas.create_text(x, y, text='ЛДСП')
                         )
-                        if len(self.insertion_forms[self.type]) - 1 != i:
-                            y1 = y2 + self.padd
-
+                        y1 = y2 + self.padd
                         insertion_count -= 1
                         num_part += 1
                         #  конец блока вставки
@@ -248,21 +209,50 @@ class WithInsert(ChangeMixin):
                             self.insertion_list[_index][1] = ent
                             self.canvas.create_window((x + self.door_width, y), width=50, window=ent)
 
-                    else:  # Если это секция
+                    else:  # Если вставка не последняя, то после неё вставляем секцию
+                        #  начало блока вставки
+                        _index = insertion_count - 1
+                        _photo_ldsp = ImageTk.PhotoImage(self.insertion_img_list[_index][0])
+                        _photo_mirror = ImageTk.PhotoImage(self.insertion_img_list[_index][1])
+                        #  начало блока вставки
+                        _variable = self.insertion_list[_index][0]
+                        y2 = y1 + int(_variable.get() / self.delim)
+                        self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем вставку
+
+                        self.mat_dict[num_part] = (_photo_ldsp, 'ЛДСП', _photo_mirror, 'Зеркало')
+
+                        x = x1 + 1 + self.img_ldsp.size[0] / 2
+                        y = y1 + 1 + self.insertion_img_list[_index][0].size[1] / 2
+                        self.parts[num_part] = (
+                            self.canvas.create_image(x, y, image=_photo_ldsp),
+                            self.canvas.create_text(x, y, text='ЛДСП')
+                        )
+                        y1 = y2 + self.padd
+                        insertion_count -= 1
+                        num_part += 1
+                        #  конец блока вставки
+
+                        if first_door:  # если это первая дверь
+                            _var = self.insertion_list[_index]
+                            ent = tkinter.Entry(textvariable=_var[0])
+                            ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
+                            ent.bind('<Return>', lambda event, v=_var: self.change_size_insertion(event, v))
+                            self.insertion_list[_index][1] = ent
+                            self.canvas.create_window((x + self.door_width, y), width=50, window=ent)
+
                         #  начало блока секции
-                        y2 = y1 + self.img_ldsp.size[1] + 1
+                        y2 = y1 + self.img_ldsp.size[1] + 3
                         self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем двери
 
                         self.mat_dict[num_part] = (self.mirror, 'Зеркало', self.ldsp, 'ЛДСП')
 
-                        x = x1 + 0.5 + self.img_ldsp.size[0] / 2
-                        y = y1 + 0.5 + self.img_ldsp.size[1] / 2
+                        x = x1 + 1 + self.img_ldsp.size[0] / 2
+                        y = y1 + 1 + self.img_ldsp.size[1] / 2
                         self.parts[num_part] = (
                             self.canvas.create_image(x, y, image=self.mat_dict[num_part][0]),
                             self.canvas.create_text(x, y, text=self.mat_dict[num_part][1])
                         )
-                        if len(self.insertion_forms[self.type]) - 1 != i:
-                            y1 = y2 + self.padd
+                        y1 = y2 + self.padd
                         num_part += 1
                         #  конец блока секции
 
@@ -288,3 +278,7 @@ class WithInsert(ChangeMixin):
         self.frame.canvas = self.canvas
         self.frame.canvas.pack()
 
+
+class WithMiddleInsert:
+    def __init__(self, master_frame, num_doors=2, insertion=0):
+        super().__init__()

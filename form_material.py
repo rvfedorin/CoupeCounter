@@ -92,9 +92,9 @@ class FormAndMaterial(tkinter.Frame):
                     '4FormFourSection.png': (FormSection, 4),
                     '5twoinsert.png': (WithInsert, 2),
                     '6treeinsert.png': (WithInsert, 3),
-                    '7onemiddleinsert.png': '',
-                    '8twomiddleinsert.png': '',
-                    '9treemiddleinsert.png': '',
+                    '7onemiddleinsert.png': (WithInsert, 21),
+                    '8twomiddleinsert.png': (WithInsert, 22),
+                    '9treemiddleinsert.png': (WithInsert, 23),
                     '91onebottominsert.png': (WithInsert, 1),
                     }
         self.form = '1FormNoSection.png'

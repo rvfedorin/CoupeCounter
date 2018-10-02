@@ -35,7 +35,8 @@ class MainFrame(tkinter.Frame):
         sec = form_list[1]
         doors = int(self.param_door.amount_doors.get())
         self.form_material.canvas.destroy()
-        self.form_material.form_class = form(self.form_material, doors, sec)
+        insertions = self.form_material.form_class.insertion_list
+        self.form_material.form_class = form(self.form_material, doors, sec, insertions)
         self.form_material.canvas = self.form_material.form_class.canvas
         self.form_material.canvas.pack()
 
