@@ -49,8 +49,7 @@ class Calculation(tkinter.Toplevel):
         self.canvas.create_image(200, 78, image=self.prof_img)
 
         img = os.path.join(f'{settings.handles}/{self.main_frame.sys_door.system_doors_name}', f'{self.main_frame.door_handle.type_handle.get()}.png')
-        print(img)
-        self.context_for_template['img_handle'] = InlineImage(self.doc, img, width=20)
+        self.context_for_template['img_handle'] = InlineImage(self.doc, img)
 
         self.param_txt = f"""
 Высота проёма: {self.main_frame.param_door.height_var.get()}
