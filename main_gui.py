@@ -68,7 +68,7 @@ class MainFrame(tkinter.Frame):
     def calculate(self):
         doors = int(self.param_door.amount_doors.get())
         overlap = int(self.param_door.amount_opening .get())
-        text = res = ''
+        res = ''
 
         if doors - overlap > 1:
             text = "Вы уверены, что мест перекрытий должно быть на столько меньше, чем дверей?"
@@ -78,9 +78,8 @@ class MainFrame(tkinter.Frame):
             text = "Вы уверены, что мест перекрытий должно быть больше, чем дверей?",
             res = mbox.askquestion("Warning", text)
 
-        if res == 'yes' or res =='':
+        if res == 'yes' or res == '':
             Calculation(self)
-            print('Hello')
 
 
 if __name__ == '__main__':
