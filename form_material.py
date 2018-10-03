@@ -106,12 +106,12 @@ class FormAndMaterial(tkinter.Frame):
             self.create_bolt_section()
 
         self.label_mat = tkinter.Label(self,
-                                   text=f"{4 if self.section else 3}. Выбрерите наполнение для дверей: ",
-                                   bg='#1ad924', width=70)
+                                       text=f"{4 if self.section else 3}. Выбрерите наполнение для дверей: ",
+                                       bg='#1ad924', width=70)
         self.label_mat.pack()
 
-        to_create = self.form_list[self.form]  # class [0] with parametrs [1]
-        self.form_class = to_create[0](self, self.doors, to_create[1])  # Создаём форму
+        self.to_create = self.form_list[self.form]  # class [0] with parametrs [1]
+        self.form_class = self.to_create[0](self, self.doors, self.to_create[1])  # Создаём форму
 
         self.canvas = self.form_class.canvas
         self.canvas.pack()

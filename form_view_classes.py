@@ -7,7 +7,7 @@ import settings
 
 
 class ChangeMixin:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, need_entry=True, *args, **kwargs):
         self.parts = None
         self.mat_dict = None
         self.canvas = None
@@ -15,6 +15,7 @@ class ChangeMixin:
         self.mirror = None
         self.mat_indicator = None
         self.insertion_list = None
+        self.need_entry = need_entry
 
     def change_material(self, event, change_side):
         for i in self.parts.keys():
@@ -43,6 +44,13 @@ class ChangeMixin:
             self.canvas.tag_bind(mat_txt[1], '<Button-1>',
                                  lambda event, part=part: self.change_material(event, part))
 
+    def make_form(self, copy=False):
+        pass
+
+    def make_only_view(self):
+        self.need_entry = False
+        self.make_form(copy=True)
+
 
 class FormSection(ChangeMixin):
     def __init__(self, master_frame, num_doors=2, sec=1, *args, **kwargs):
@@ -58,7 +66,9 @@ class FormSection(ChangeMixin):
         self.parts = {}
         self.frame = master_frame
         self.mat_indicator = 0
+        self.make_form()
 
+    def make_form(self, copy=False):
         try:
             self.img_ldsp = Image.open(os.path.join(settings.mater_img, 'wfon.jpg'))
             self.img_mirror = Image.open(os.path.join(settings.mater_img, 'gfon.jpg'))
@@ -91,7 +101,8 @@ class FormSection(ChangeMixin):
                 y2 = y1 + (self.y_size - self.padd*(self.sec-1)) / self.sec
                 self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем двери
 
-                self.mat_random(num_part)  # чередование материала части
+                if not copy:
+                    self.mat_random(num_part)  # чередование материала части
 
                 x = x1 + 1 + self.img_ldsp.size[0] / 2
                 y = y1 + 1 + self.img_ldsp.size[1] / 2
@@ -106,13 +117,26 @@ class FormSection(ChangeMixin):
             x2 = x1 + self.padd + self.img_ldsp.size[0] - self.padd / 2
             y1 = 10
             door_count -= 1
+            if self.need_entry:
+                self.create_binds()  # создать привязки смены материала, определён в ChangeMixin
 
-            self.create_binds()  # создать привязки смены материала, определён в ChangeMixin
+    def copy(self, object):
+        object.num_doors = self.num_doors
+        object.num_doors = self.num_doors
+        object.opening_h = self.opening_h
+        object.opening_w = self.opening_w
+        object.x_size = self.x_size
+        object.y_size = self.y_size
+        object.padd = self.padd
+        object.sec = self.sec
+        object.mat_dict = self.mat_dict.copy()
+        object.parts = self.parts.copy()
+        object.mat_indicator = self.mat_indicator
 
 
 class WithInsert(ChangeMixin):
-    def __init__(self, master_frame, num_doors=2, insertion=2, insertion_list=None):
-        super().__init__()
+    def __init__(self, master_frame, num_doors=2, insertion=2, insertion_list=None, **kwargs):
+        super().__init__(**kwargs)
         self.frame = master_frame
         self.num_doors = num_doors
         self.opening_h = int(self.frame.main_frame.param_door.height_var.get())  # высота проёма
@@ -121,6 +145,7 @@ class WithInsert(ChangeMixin):
         self.x_size = int(self.opening_w / (self.delim*2))
         self.y_size = int(self.opening_h / self.delim)
         self.padd = 4  # отступ от частей двери
+        self.insertion_photo_dict = {}
         if insertion_list:
             self.insertion_list = insertion_list[:]
         else:
@@ -152,7 +177,7 @@ class WithInsert(ChangeMixin):
         self.mat_indicator = 0
         self.make_form()
 
-    def make_form(self):
+    def make_form(self, copy=False):
             sum_ins = 0
             for ins in self.insertion_list:
                 sum_ins += ins[0].get() / self.delim + self.padd
@@ -194,7 +219,7 @@ class WithInsert(ChangeMixin):
             x2 = x1 + self.x_size
             y2 = y1 + self.y_size - self.padd
 
-            self.door_width = x1+(self.x_size+self.padd)*self.num_doors + self.padd/2
+            self.door_width = x1+(self.x_size+self.padd)*self.num_doors + (1 * self.num_doors)
 
             sum_ins = 0
             for ins in self.insertion_list:
@@ -221,18 +246,21 @@ class WithInsert(ChangeMixin):
                         _index = insertion_count-1
                         _photo_ldsp = ImageTk.PhotoImage(self.insertion_img_list[_index][0])
                         _photo_mirror = ImageTk.PhotoImage(self.insertion_img_list[_index][1])
+                        self.insertion_photo_dict[num_part] = (_photo_ldsp, _photo_mirror)
                         #  начало блока вставки
                         _variable = self.insertion_list[_index][0].get()  # высота вставки
                         y2 = y1 + int(_variable / self.delim)
                         self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем двери
 
-                        # запоминаем материал каждой двери и противоположный
-                        self.mat_dict[num_part] = (_photo_ldsp, 'ЛДСП', _photo_mirror, 'Зеркало')
+                        if not copy:  # если это не копия
+                            # запоминаем материал каждой двери и противоположный
+                            self.mat_dict[num_part] = (self.insertion_photo_dict[num_part][0], 'ЛДСП',
+                                                       self.insertion_photo_dict[num_part][1], 'Зеркало')
 
                         x = x1 + 0.5 + self.insertion_img_list[_index][0].size[0] / 2
                         y = y1 + 0.5 + self.insertion_img_list[_index][0].size[1] / 2
                         self.parts[num_part] = (
-                            self.canvas.create_image(x, y, image=_photo_ldsp),
+                            self.canvas.create_image(x, y, image=self.insertion_photo_dict[num_part][0]),
                             self.canvas.create_text(x, y, text='ЛДСП')
                         )
                         if len(self.insertion_forms[self.type]) - 1 != i:
@@ -241,7 +269,7 @@ class WithInsert(ChangeMixin):
                         insertion_count -= 1
                         num_part += 1
                         #  конец блока вставки
-                        if first_door:  # если это первая дверь
+                        if first_door and self.need_entry:  # если это первая дверь
                             _var = self.insertion_list[_index]
                             ent = tkinter.Entry(textvariable=_var[0])
                             ent.bind('<FocusOut>', lambda event, v=_var: self.change_size_insertion(event, v))
@@ -254,7 +282,8 @@ class WithInsert(ChangeMixin):
                         y2 = y1 + self.img_ldsp.size[1] + 1
                         self.canvas.create_rectangle(x1, y1, x2, y2)  # рисуем двери
 
-                        self.mat_dict[num_part] = (self.mirror, 'Зеркало', self.ldsp, 'ЛДСП')
+                        if not copy:
+                            self.mat_dict[num_part] = (self.mirror, 'Зеркало', self.ldsp, 'ЛДСП')
 
                         x = x1 + 0.5 + self.img_ldsp.size[0] / 2
                         y = y1 + 0.5 + self.img_ldsp.size[1] / 2
@@ -273,7 +302,8 @@ class WithInsert(ChangeMixin):
                 door_count -= 1
                 first_door = False
 
-                self.create_binds()  # создать привязки смены материала, определён в ChangeMixin
+                if self.need_entry:
+                    self.create_binds()  # создать привязки смены материала, определён в ChangeMixin
 
     def change_size_insertion(self, event, var):
         var[1].destroy()
@@ -288,4 +318,26 @@ class WithInsert(ChangeMixin):
         self.make_form()
         self.frame.canvas = self.canvas
         self.frame.canvas.pack()
+
+    def copy(self, object):
+        object.num_doors = self.num_doors
+        object.opening_h = self.opening_h
+        object.opening_w = self.opening_w
+        object.delim = self.delim
+        object.x_size = self.x_size
+        object.y_size = self.y_size
+        object.padd = self.padd
+        object.type = self.type
+        object.insertion = self.insertion
+        object.section = self.section
+        object.insertion_list = self.insertion_list[:]
+        object.mat_dict = self.mat_dict.copy()
+        object.mat_indicator = self.mat_indicator
+        object.door_width = self.door_width
+        object.img_ldsp = self.img_ldsp
+        object.img_mirror = self.img_ldsp
+        # object.ldsp = self.ldsp
+        # object.mirror = self.mirror
+        object.insertion_photo_dict = self.insertion_photo_dict.copy()
+
 
