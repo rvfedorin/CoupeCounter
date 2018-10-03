@@ -2,6 +2,7 @@ import tkinter
 import os
 from PIL import Image, ImageTk
 import tkinter.messagebox as mbox
+from docxtpl import DocxTemplate, InlineImage
 
 import settings
 
@@ -18,11 +19,18 @@ class Calculation(tkinter.Toplevel):
         self.main_frame = main_frame
         self.canvas = tkinter.Canvas(self, width=500, height=500)
         self.canvas.pack()
+        self.context_for_template = {}
+        self.doc = DocxTemplate("template.docx")
 
         #  Заголовок
         self.title_txt = f'Профиль {self.main_frame.door_handle.type_handle.get()}, ' \
                          f'{self.main_frame.door_handle.color_handle.get()}, ' \
                          f'{self.main_frame.sys_door.system_doors_name}'
+
+        self.context_for_template['profil'] = self.main_frame.door_handle.type_handle.get()
+        self.context_for_template['color'] = self.main_frame.door_handle.color_handle.get()
+        self.context_for_template['system'] = self.main_frame.sys_door.system_doors_name
+
         self.text = TextDecor(self, wrap='word', height=1, width=len(self.title_txt))
         self.text.insert('end', self.title_txt)
         self.text.tag_add('title', 1.0, '1.end')
@@ -35,8 +43,14 @@ class Calculation(tkinter.Toplevel):
         self.sys_img = ImageTk.PhotoImage(self.sys_img)
         self.canvas.create_image(80, 78, image=self.sys_img)
 
+        self.context_for_template['img_system'] = self.sys_img
+
         self.prof_img = self.main_frame.door_handle.prof_img
         self.canvas.create_image(200, 78, image=self.prof_img)
+
+        img = os.path.join(f'{settings.handles}/{self.main_frame.sys_door.system_doors_name}', f'{self.main_frame.door_handle.type_handle.get()}.png')
+        print(img)
+        self.context_for_template['img_handle'] = InlineImage(self.doc, img, width=20)
 
         self.param_txt = f"""
 Высота проёма: {self.main_frame.param_door.height_var.get()}
@@ -44,6 +58,11 @@ class Calculation(tkinter.Toplevel):
 Количество дверей: {self.main_frame.param_door.amount_doors.get()}
 Мест перекрытия: {self.main_frame.param_door.amount_opening.get()}
         """
+        self.context_for_template['height'] = self.main_frame.param_door.height_var.get()
+        self.context_for_template['width'] = self.main_frame.param_door.width_var.get()
+        self.context_for_template['doors'] = self.main_frame.param_door.amount_doors.get()
+        self.context_for_template['overlaps'] = self.main_frame.param_door.amount_opening.get()
+
         self.param_text = TextDecor(self, wrap='word', height=5, width=40)
         self.param_text.insert('end', self.param_txt)
         self.canvas.create_window(450, 70, window=self.param_text)
@@ -58,6 +77,7 @@ class Calculation(tkinter.Toplevel):
             ('Длина горизонтального профиля (верх и низ):', 'требуется формула'),
             ('Длина силиконового уплотнителя для зеркала:', 'требуется формула'),
         )
+        self.context_for_template['formul'] = 'требуется формула'
         y = self.create_table(self.data)
 
         # шегель, если есть
@@ -69,6 +89,8 @@ class Calculation(tkinter.Toplevel):
             self.shagel_text.insert('end', self.shagel_txt)
             self.canvas.create_window(300, y+10, window=self.shagel_text)
 
+            self.context_for_template['shagelshagel'] = self.shagel_txt
+
             y += 10
 
         #  Изображение дверей
@@ -79,10 +101,15 @@ class Calculation(tkinter.Toplevel):
         self.data_form.make_only_view()
         self.canvas.create_window(270, y + self.data_form.y_size/2 + 10, window=self.data_form.canvas)
 
+        # self.canvas.update()
+        # self.canvas.postscript(file="x.ps")
+
+        self.doc.render(self.context_for_template)
+        self.doc.save("generated.docx")
+
         # кнопака выход
         self.button_exit = tkinter.Button(self, text='Выход', command=self.destroy)
         self.button_exit.pack(padx=10, pady=10, side='right')
-
 
     def create_table(self, rows: tuple, y=140):
         for row in rows:
