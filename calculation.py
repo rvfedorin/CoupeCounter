@@ -35,11 +35,15 @@ class Calculation(tkinter.Toplevel):
                             '91onebottominsert.png': [1, 0],
                             }
         self.form = self.main_frame.form_material.form  # наприме 1FormNoSection.png
+        self.insertion = self.forms_template[self.form].count(0)
+        self.section = self.forms_template[self.form].count(1)
         self.doors = int(self.main_frame.param_door.amount_doors.get())  # количество дверей
         self.prof = self.main_frame.door_handle.type_handle.get()
         self.color = self.main_frame.door_handle.color_handle.get()
         self.system = self.main_frame.sys_door.system_doors_name
         self.bolt = self.main_frame.form_material.type_bolt.get()
+        self.door_height = int(self.main_frame.param_door.height_var.get())
+        self.door_width = int(self.main_frame.param_door.width_var.get()) / 2
 
         #  Заголовок
         self.title_txt = f'Профиль {self.prof}, ' \
@@ -57,16 +61,11 @@ class Calculation(tkinter.Toplevel):
         self.sys_img = ImageTk.PhotoImage(self.sys_img)
         self.canvas.create_image(80, 78, image=self.sys_img)
 
-        img = os.path.join(f'{settings.system_doors_path_img}', self.main_frame.sys_door.system_doors_img)
-
         self.prof_img = self.main_frame.door_handle.prof_img
         self.canvas.create_image(200, 78, image=self.prof_img)
 
-        img = os.path.join(f'{settings.handles}/{self.main_frame.sys_door.system_doors_name}',
-                           f'{self.main_frame.door_handle.type_handle.get()}.png')
-
         self.param_txt = f"""
-Высота проёма: {self.main_frame.param_door.height_var.get()}
+Высота проёма: {self.door_height}
 Ширина проёма: {self.main_frame.param_door.width_var.get()}
 Количество дверей: {self.doors}
 Мест перекрытия: {self.main_frame.param_door.amount_opening.get()}
@@ -112,7 +111,7 @@ class Calculation(tkinter.Toplevel):
         self.button_exit = tkinter.Button(self, text='Выход', command=self.destroy)
         self.button_exit.pack(padx=10, pady=10, side='right')
 
-    def create_table(self, rows: tuple, y=140):
+    def create_table(self, rows: tuple, y=140):  # таблица для канваса
         for row in rows:
             text_name = TextDecor(self, wrap='word', height=1, width=len(row[0]))
             text_name.insert('end', row[0])
@@ -127,7 +126,8 @@ class Calculation(tkinter.Toplevel):
         self.canvas.create_line(330, 130, 330, y-10)
         return y
 
-    def create_out(self):
+    def create_out(self):  # Созднание вывода в html
+        table = self.create_template_tabel()
         body = f"""
 <body>
 <center>
@@ -180,6 +180,11 @@ class Calculation(tkinter.Toplevel):
         body += """
   <br>Размеры с учётом &laquo;шлегеля&raquo;, 34м<br><br>
   <table id="jvdoor" width="250" height="417">
+  """
+        for row in table:
+            pass
+
+            """
     <tr>
       <td background="system_doors/img_material/g.jpg" width="36"><center><span>Зеркало:<br>1197 x 177</span>
       <td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
@@ -200,31 +205,42 @@ class Calculation(tkinter.Toplevel):
     </tr>
   </table>
         """
-        print(body)
+        print(table)
 
-    def create_template_img_tabel(self):
+    def create_template_tabel(self):
         num_part = 1
         table = []
         rows = []
         doors = self.doors
-        body = '<tr>'
         mat_ldsp = f'{settings.mater_img}/g.jpg'
         mat_mirror = f'{settings.mater_img}/w.png'
-        # self.data_form.mat_dict[num_part]  # (phot_ldsp, 'ЛДСП', phot_mirror, 'Зеркало')
+        insertion = 0
+        insertion_var_list = self.main_frame.form_material.form_class.insertion_list
+
+        if self.insertion:
+            sum_ins = 0
+            for ins in insertion_var_list:
+                sum_ins += ins[0].get()
+            height_sec = (self.door_height - sum_ins) / (10 + self.section)  # высота секции
+        else:
+            height_sec = ''
+
         while doors:
             for i in self.forms_template[self.form]:
                 mat = self.data_form.mat_dict[num_part][1]
 
                 if mat == 'Зеркало':
                     if i == 0:
-                        _app = f'<td background="{mat_mirror}" width="36"><center><span>Зеркало:<br>1197 x 177</span>'
+                        height = insertion_var_list[insertion]/10
+                        _app = f'<td background="{mat_mirror}" width="36" height="{height}"><center><span>Зеркало:<br>1197 x 177</span>'
                     else:
-                        _app = f'<td background="{mat_mirror}" width="36"><center><span>Зеркало:<br>1197 x 177</span>'
+                        _app = f'<td background="{mat_mirror}" width="36" height="{height_sec}"><center><span>Зеркало:<br>1197 x 177</span>'
                 else:
                     if i == 0:
-                        _app = f'<td background="{mat_ldsp}" width="36"><center><span>ЛДСП:<br>1199 x 179</span>'
+                        height = insertion_var_list[insertion]/10
+                        _app = f'<td background="{mat_ldsp}" width="36" height="{height}><center><span>ЛДСП:<br>1199 x 179</span>'
                     else:
-                        _app = f'<td background="{mat_ldsp}" width="36"><center><span>ЛДСП:<br>1199 x 179</span>'
+                        _app = f'<td background="{mat_ldsp}" width="36" height="{height_sec}"><center><span>ЛДСП:<br>1199 x 179</span>'
 
                 rows.append(_app)
 
