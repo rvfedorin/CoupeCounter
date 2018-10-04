@@ -16,6 +16,8 @@ class ChangeMixin:
         self.mat_indicator = None
         self.insertion_list = None
         self.need_entry = need_entry
+        self.img_path_ldsp = os.path.join(settings.mater_img, 'wfon.jpg')
+        self.img_path_mirror = os.path.join(settings.mater_img, 'gfon.jpg')
 
     def change_material(self, event, change_side):
         for i in self.parts.keys():
@@ -66,16 +68,19 @@ class FormSection(ChangeMixin):
         self.parts = {}
         self.frame = master_frame
         self.mat_indicator = 0
+
         self.make_form()
 
     def make_form(self, copy=False):
         try:
-            self.img_ldsp = Image.open(os.path.join(settings.mater_img, 'wfon.jpg'))
-            self.img_mirror = Image.open(os.path.join(settings.mater_img, 'gfon.jpg'))
+
+            self.img_ldsp = Image.open(self.img_path_ldsp)
+            self.img_mirror = Image.open(self.img_path_mirror)
             y_size = int((self.y_size - self.padd*(self.sec-1)) / self.sec)
             self.img_ldsp = self.img_ldsp.resize((self.x_size-2, y_size - 2), Image.ANTIALIAS)
             self.img_mirror = self.img_mirror.resize((self.x_size - 1, y_size - 1), Image.ANTIALIAS)
         except:
+
             print('Image ldsp or mirror not found')
 
         self.ldsp = ImageTk.PhotoImage(self.img_ldsp)
@@ -175,6 +180,7 @@ class WithInsert(ChangeMixin):
         self.mat_dict = {}
         self.parts = {}
         self.mat_indicator = 0
+
         self.make_form()
 
     def make_form(self, copy=False):
@@ -183,8 +189,8 @@ class WithInsert(ChangeMixin):
                 sum_ins += ins[0].get() / self.delim + self.padd
 
             try:
-                self.img_ldsp = Image.open(os.path.join(settings.mater_img, 'wfon.jpg'))
-                self.img_mirror = Image.open(os.path.join(settings.mater_img, 'gfon.jpg'))
+                self.img_ldsp = Image.open(self.img_path_ldsp)
+                self.img_mirror = Image.open(self.img_path_mirror)
 
                 if self.type > 22:
                     y_size = int((self.y_size - sum_ins) / self.section - self.padd)

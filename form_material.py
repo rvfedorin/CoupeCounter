@@ -162,6 +162,7 @@ class FormAndMaterial(tkinter.Frame):
 
     def change_img_bolt(self, new_img):
         self.type_bolt.set(new_img)
+        self.form_class.ma
         for fr in self.bolt_frames:
             fr.destroy()
         self.create_bolt_section()
