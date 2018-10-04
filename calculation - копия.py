@@ -1,6 +1,6 @@
 import tkinter
 import os
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageFont, ImageDraw
 import tkinter.messagebox as mbox
 from docxtpl import DocxTemplate, InlineImage
 from docx.shared import Mm
@@ -142,16 +142,39 @@ class Calculation(tkinter.Toplevel):
         return y
 
     def create_template_img_tabel(self):
-        img_dsp = ''
-        img_mirror = ''
         num_part = 1
         table = []
         rows = []
         doors = self.doors
+        img_ldsp = Image.open('system_doors/img_material/w.png').resize((
+            self.data_form.img_ldsp.size[0],
+            self.data_form.img_ldsp.size[1]), Image.ANTIALIAS)
+        img_mirror = Image.open('system_doors/img_material/g.jpg').resize((
+            self.data_form.img_mirror.size[0],
+            self.data_form.img_mirror.size[1]), Image.ANTIALIAS)
+
         # self.data_form.mat_dict[num_part]  # (phot_ldsp, 'ЛДСП', phot_mirror, 'Зеркало')
         while doors:
-            for _ in self.forms_template[self.form]:
-                rows.append(self.data_form.mat_dict[num_part][1])
+            for i in self.forms_template[self.form]:
+                mat = self.data_form.mat_dict[num_part][1]
+
+                if mat == 'Зеркало':
+                    if i == 0:
+                        self.create_text_in_img('system_doors/img_material/g.jpg', mat, num_part)
+                        _app = InlineImage(self.doc, f"temp/{num_part}.png")
+                    else:
+                        self.create_text_in_img(img_mirror, mat, num_part, notopened=False)
+                        _app = InlineImage(self.doc, f"temp/{num_part}.png")
+                else:
+                    if i == 0:
+                        self.create_text_in_img('system_doors/img_material/w.png', mat, num_part)
+                        _app = InlineImage(self.doc, f"temp/{num_part}.png")
+                    else:
+                        self.create_text_in_img(img_ldsp, mat, num_part, notopened=False)
+                        _app = InlineImage(self.doc, f"temp/{num_part}.png")
+
+                rows.append(_app)
+
                 num_part += 1
 
             doors -= 1
@@ -175,5 +198,15 @@ class Calculation(tkinter.Toplevel):
             len_c -= 1
 
         return result
+
+    def create_text_in_img(self, image, text, num_part, notopened=True):
+        if notopened:
+            image = Image.open(image)
+        else:
+            image = image
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.truetype("data/arial.ttf", 10)
+        draw.text((10, 10), text, font=font, fill=(0, 0, 0))
+        image.save(f"temp/{num_part}.png")
 
 
