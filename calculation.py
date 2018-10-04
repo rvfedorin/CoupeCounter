@@ -182,30 +182,14 @@ class Calculation(tkinter.Toplevel):
   <table id="jvdoor" width="250" height="417">
   """
         for row in table:
-            pass
+            body += '\n<tr>'
+            for col in row:
+                body += f'{col}\n'
+            body += '\n</tr>'
 
-            """
-    <tr>
-      <td background="system_doors/img_material/g.jpg" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-    </tr>
-    <tr>
-      <center><td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <center><td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <center><td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <center><td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <center><td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-      <center><td class="gfon" width="36"><center><span>Зеркало:<br>1197 x 177</span>
-      <center><td class="wfon" width="36"><center><span>ЛДСП:<br>1199 x 179</span>
-    </tr>
-  </table>
-        """
-        print(table)
+        body += '\n</table>'
+
+        print(body)
 
     def create_template_tabel(self):
         num_part = 1
@@ -214,7 +198,7 @@ class Calculation(tkinter.Toplevel):
         doors = self.doors
         mat_ldsp = f'{settings.mater_img}/g.jpg'
         mat_mirror = f'{settings.mater_img}/w.png'
-        insertion = 0
+
         insertion_var_list = self.main_frame.form_material.form_class.insertion_list
 
         if self.insertion:
@@ -226,24 +210,25 @@ class Calculation(tkinter.Toplevel):
             height_sec = ''
 
         while doors:
+            insertion = 0
             for i in self.forms_template[self.form]:
                 mat = self.data_form.mat_dict[num_part][1]
 
                 if mat == 'Зеркало':
                     if i == 0:
                         height = insertion_var_list[insertion]/10
-                        _app = f'<td background="{mat_mirror}" width="36" height="{height}"><center><span>Зеркало:<br>1197 x 177</span>'
+                        _app = f'<td background="{mat_mirror}" width="36" height="{height}"><center><span>Зеркало:<br>1197 x 177</span></td>'
                     else:
-                        _app = f'<td background="{mat_mirror}" width="36" height="{height_sec}"><center><span>Зеркало:<br>1197 x 177</span>'
+                        _app = f'<td background="{mat_mirror}" width="36" height="{height_sec}"><center><span>Зеркало:<br>1197 x 177</span></td>'
                 else:
                     if i == 0:
                         height = insertion_var_list[insertion]/10
-                        _app = f'<td background="{mat_ldsp}" width="36" height="{height}><center><span>ЛДСП:<br>1199 x 179</span>'
+                        _app = f'<td background="{mat_ldsp}" width="36" height="{height}><center><span>ЛДСП:<br>1199 x 179</span></td>'
                     else:
-                        _app = f'<td background="{mat_ldsp}" width="36" height="{height_sec}"><center><span>ЛДСП:<br>1199 x 179</span>'
+                        _app = f'<td background="{mat_ldsp}" width="36" height="{height_sec}"><center><span>ЛДСП:<br>1199 x 179</span></td>'
 
+                insertion += 1
                 rows.append(_app)
-
                 num_part += 1
 
             doors -= 1
