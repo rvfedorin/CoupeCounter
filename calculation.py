@@ -3,7 +3,7 @@ import os
 from PIL import Image, ImageTk, ImageFont, ImageDraw
 import tkinter.messagebox as mbox
 from docxtpl import DocxTemplate, InlineImage
-from docx.shared import Mm
+from template_tools import CreateHtmlTemplate
 
 import settings
 
@@ -21,7 +21,6 @@ class Calculation(tkinter.Toplevel):
         self.canvas = tkinter.Canvas(self, width=500, height=500)
         self.canvas.pack()
         self.context_for_template = {}
-        self.doc = DocxTemplate("template.docx")
         self.forms_template = {  # 1 - секция, 0 - вставка
                             '1FormNoSection.png': [1],
                             '2FormTwoSection.png': [1, 1],
@@ -39,21 +38,23 @@ class Calculation(tkinter.Toplevel):
         self.section = self.forms_template[self.form].count(1)
         self.doors = int(self.main_frame.param_door.amount_doors.get())  # количество дверей
         self.prof = self.main_frame.door_handle.type_handle.get()
-        self.color = self.main_frame.door_handle.color_handle.get()
+        self.color = self.main_frame.door_handle.color_handle.get()[:-1]
         self.system = self.main_frame.sys_door.system_doors_name
         self.bolt = self.main_frame.form_material.type_bolt.get()
+        self.opening_width = int(self.main_frame.param_door.width_var.get())
         self.door_height = int(self.main_frame.param_door.height_var.get())
-        self.door_width = int(self.main_frame.param_door.width_var.get()) / 2
+        self.door_width = self.opening_width / 2
+        self.overlaps = self.main_frame.param_door.amount_opening.get()
+        self.pic_system = os.path.join(settings.system_doors_path_img, f'{self.system}.png')
+        self.pic_profile = os.path.join(f'{settings.handles}/{self.system}', f'{self.prof}.png')
 
         #  Заголовок
-        self.title_txt = f'Профиль {self.prof}, ' \
-                         f'{self.color}, ' \
-                         f'{self.system}'
-
+        self.title_txt = f'Профиль {self.prof}, {self.color}, {self.system}'
         self.text = TextDecor(self, wrap='word', height=1, width=len(self.title_txt))
         self.text.insert('end', self.title_txt)
         self.text.tag_add('title', 1.0, '1.end')
         self.text.tag_config('title', font='Arial 10 bold', justify='center')
+        self.canvas.create_window(250, 20, window=self.text)
 
         #  Система (изображение), профиль (изображение), параметры
         self.sys_img = self.main_frame.sys_door.image
@@ -66,9 +67,9 @@ class Calculation(tkinter.Toplevel):
 
         self.param_txt = f"""
 Высота проёма: {self.door_height}
-Ширина проёма: {self.main_frame.param_door.width_var.get()}
+Ширина проёма: {self.opening_width}
 Количество дверей: {self.doors}
-Мест перекрытия: {self.main_frame.param_door.amount_opening.get()}
+Мест перекрытия: {self.overlaps}
         """
         self.param_text = TextDecor(self, wrap='word', height=5, width=40)
         self.param_text.insert('end', self.param_txt)
@@ -128,66 +129,29 @@ class Calculation(tkinter.Toplevel):
 
     def create_out(self):  # Созднание вывода в html
         table = self.create_template_tabel()
-        body = f"""
-<body>
-<center>
-<div id="sheet">
-﻿<strong>Профиль {self.prof}, {self.color}, {self.system}</strong><br><br>
-<div class="showLogoPar">
-  <div class="showLogoWww">
-    <img src="pic/sysknop/Absolut.png"  />
-    <img src="pic/profcut/Absolut/Laguna.png" />
-  <p class="clr"></p>
-  </div>
-  <div class="showPar">
-    <span>Высота проёма: {self.main_frame.param_door.height_var.get()}</span><br />
-    <span>Ширина проёма: {self.main_frame.param_door.width_var.get()}</span><br />
-    <span>Количество дверей: {self.doors}</span><br />
-    <span>Мест перекрытия: {self.main_frame.param_door.amount_opening.get()}</span><br />
-  </div>
-</div>
-  <table id='counttable' cellspacing=0 cellpading=5>
-    <tr> 
-      <td class='rightborder'>Размер двери: </td>
-      <td class='bb'><strong><i>2460 x 218мм. НУЖНА ФОРМУЛА</i></strong></td>
-    </tr>
-    <tr>
-      <td class='rightborder'>Размер плиты 10мм: </td>
-      <td class='bb'><strong>1199 x 179мм. - 7шт. НУЖНА ФОРМУЛА</strong></td>
-    </tr>
-    <tr>
-      <td class='rightborder'>Размер зеркала (стекла) 4мм: </td>
-      <td class='bb'><strong>1197 x 177мм. - 7шт. НУЖНА ФОРМУЛА</strong></td>
-    </tr>
-    <tr>
-      <td  class='rightborder'>Длина вертикального профиля: </td>
-      <td><strong>2460мм. НУЖНА ФОРМУЛА</strong></td>
-    </tr>
-    <tr>
-      <td class='rightborder'>Длина горизонтального и межсекционного профиля: </td>
-      <td><strong>164мм. НУЖНА ФОРМУЛА</strong></td>
-    </tr>
-    <tr>
-      <td  class='rightborder'>Межсекционный профиль: </td>
-      <td><strong>{self.bolt}</strong></td>
-    </tr>
-    <tr>
-      <td class='rightborder'>Длина силиконового уплотнителя для зеркала:</td>
-      <td><strong>19м.</strong></td>
-    </tr>
-  </table>
-  """
-        body += """
-  <br>Размеры с учётом &laquo;шлегеля&raquo;, 34м<br><br>
-  <table id="jvdoor" width="250" height="417">
-  """
-        for row in table:
-            body += '\n<tr>'
-            for col in row:
-                body += f'{col}\n'
-            body += '\n</tr>'
+        body = CreateHtmlTemplate()
+        body.bolt = self.bolt
+        body.prof = self.prof
+        body.color = self.color
+        body.system = self.system
+        body.door_height = self.door_height
+        body.opening_width = self.opening_width
+        body.overlaps = self.overlaps
+        body.doors = self.doors
+        body.pic_system = self.pic_system
+        body.pic_profile = self.pic_profile
 
-        body += '\n</table>'
+        temp = '<table id="jvdoor" width="250" height="417"><tbody>'
+        for row in table:
+            temp += '\n<tr>'
+            for col in row:
+                temp += f'{col}\n'
+            temp += '\n</tr>'
+        temp += '\n</tbody></table>'
+
+        body.table_doors_view = temp
+        body.create_body()
+        body('</body>')
 
         print(body)
 
@@ -196,8 +160,6 @@ class Calculation(tkinter.Toplevel):
         table = []
         rows = []
         doors = self.doors
-        mat_ldsp = f'{settings.mater_img}/g.jpg'
-        mat_mirror = f'{settings.mater_img}/w.png'
 
         insertion_var_list = self.main_frame.form_material.form_class.insertion_list
 
@@ -205,29 +167,33 @@ class Calculation(tkinter.Toplevel):
             sum_ins = 0
             for ins in insertion_var_list:
                 sum_ins += ins[0].get()
-            height_sec = (self.door_height - sum_ins) / (10 + self.section)  # высота секции
+            height_sec = (self.door_height - sum_ins) / self.section / 10  # высота секции
         else:
-            height_sec = ''
+            height_sec = self.door_height / self.section / 10
 
         while doors:
             insertion = 0
             for i in self.forms_template[self.form]:
                 mat = self.data_form.mat_dict[num_part][1]
-
                 if mat == 'Зеркало':
                     if i == 0:
-                        height = insertion_var_list[insertion]/10
-                        _app = f'<td background="{mat_mirror}" width="36" height="{height}"><center><span>Зеркало:<br>1197 x 177</span></td>'
+                        height = insertion_var_list[insertion][0].get()/10
+                        insertion += 1
+                        _app = f"""<td class="gfon" height="{int(height)}">
+                        <center><span>Зеркало:<br>1197 x 177</span></td>"""
                     else:
-                        _app = f'<td background="{mat_mirror}" width="36" height="{height_sec}"><center><span>Зеркало:<br>1197 x 177</span></td>'
+                        _app = f"""<td class="gfon" height="{int(height_sec)}">
+                        <center><span>Зеркало:<br>1197 x 177</span></td>"""
                 else:
                     if i == 0:
-                        height = insertion_var_list[insertion]/10
-                        _app = f'<td background="{mat_ldsp}" width="36" height="{height}><center><span>ЛДСП:<br>1199 x 179</span></td>'
+                        height = insertion_var_list[insertion][0].get()/10
+                        insertion += 1
+                        _app = f"""<td class="wfon" height="{int(height)}">
+                        <center><span>ЛДСП:<br>1199 x 179</span></td>"""
                     else:
-                        _app = f'<td background="{mat_ldsp}" width="36" height="{height_sec}"><center><span>ЛДСП:<br>1199 x 179</span></td>'
+                        _app = f"""<td class="wfon" height="{int(height_sec)}">
+                        <center><span>ЛДСП:<br>1199 x 179</span></td>"""
 
-                insertion += 1
                 rows.append(_app)
                 num_part += 1
 

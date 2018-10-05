@@ -1,25 +1,31 @@
-C:\Users\Wolf\Documents\GitHub\coupe_count\venv_coupe\Scripts\python.exe C:/Users/Wolf/Documents/GitHub/coupe_count/main_gui.py
-        
+
+
+class CreateHtmlTemplate:
+    def __init__(self):
+        self.body = """        
     <head>
   <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
-                
+                """
+
+    def create_body(self):
+        self.body += f"""
 
         <body>
         <center>
         <div id="sheet">
-        <strong>Профиль Classic_assim, Золото Капо Димонте, Absolut</strong><br><br>
+        <strong>Профиль {self.prof}, {self.color}, {self.system}</strong><br><br>
         <div class="showLogoPar">
           <div class="showLogoWww">
-            <img src="system_doors/img_system_doors\Absolut.png"  />
-            <img src="system_doors/vertical_handle_profile/Absolut\Classic_assim.png" />
+            <img src="{self.pic_system}"  />
+            <img src="{self.pic_profile}" />
           <p class="clr"></p>
           </div>
           <div class="showPar">
-            <span>Высота проёма: 2500</span><br />
-            <span>Ширина проёма: 1500</span><br />
-            <span>Количество дверей: 2</span><br />
-            <span>Мест перекрытия: 1</span><br />
+            <span>Высота проёма: {self.door_height}</span><br />
+            <span>Ширина проёма: {self.opening_width}</span><br />
+            <span>Количество дверей: {self.doors}</span><br />
+            <span>Мест перекрытия: {self.overlaps}</span><br />
           </div>
         </div>
         <p class="bb"></p><br>
@@ -46,7 +52,7 @@ C:\Users\Wolf\Documents\GitHub\coupe_count\venv_coupe\Scripts\python.exe C:/User
             </tr>
             <tr>
               <td  class='rightborder'>Межсекционный профиль: </td>
-              <td><strong>С болтом</strong></td>
+              <td><strong>{self.bolt}</strong></td>
             </tr>
             <tr>
               <td class='rightborder'>Длина силиконового уплотнителя для зеркала:</td>
@@ -54,25 +60,23 @@ C:\Users\Wolf\Documents\GitHub\coupe_count\venv_coupe\Scripts\python.exe C:/User
             </tr>
           </table>
           <br>Размеры с учётом &laquo;шлегеля&raquo;, 34м<br><br>
-          <table id="jvdoor" width="250" height="417"><tbody>
-<tr><td class="gfon" height="250">
-                        <center><span>Зеркало:<br>1197 x 177</span></td>
-<td class="wfon" height="250">
-                        <center><span>ЛДСП:<br>1199 x 179</span></td>
-
-</tr>
-</tbody></table>
+          {self.table_doors_view}
           <br><br><p class="bb"></p><br>
           <div class="count-knop">
-          <div class="knop-print" onclick="print_doc()">Печать</div>
+          <div class="knop-print" onclick="print_doc()"><a href="#">Печать</a></div>
           </div>
-          
+          """
+        self.body += """
           <script type="text/javascript">
             function print_doc(){
             window.print() ;
             }
           </script>
-          
-</body>
+          """
 
-Process finished with exit code 0
+    def __call__(self, *args, **kwargs):
+        self.body += '\n'
+        self.body += args[0]
+
+    def __str__(self):
+        return self.body

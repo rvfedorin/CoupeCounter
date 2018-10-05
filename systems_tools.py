@@ -79,7 +79,7 @@ class SystemDoors(tkinter.Frame):
             print('error open ')
 
         self.system_doors_img = self.all_system_doors[0]  # take one from all as default
-        self.system_doors_name = self.system_doors_img[:-4]  # take name system as default ([:-3] - extension cut)
+        self.system_doors_name = self.system_doors_img[:-4]  # take name system as default ([:-4] - extension cut)
         self.make_widget()
         self.pack(side='top', fill='x')
 
