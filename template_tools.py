@@ -1,11 +1,12 @@
+import os
 
 
 class CreateHtmlTemplate:
     def __init__(self):
         self.body = """        
-    <head>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-    </head>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
                 """
 
     def create_body(self):
@@ -80,3 +81,11 @@ class CreateHtmlTemplate:
 
     def __str__(self):
         return self.body
+
+    def save(self):
+        with open('temp.html', 'w') as file:
+            file.write(self.body)
+
+    def open_calc(self):
+        os.system("start temp.html")
+
